@@ -7,6 +7,7 @@ from partner_b.decomposition.block import decompose_blocks
 from partner_b.mutation.mutator import (
     mutate_comparison,
     mutate_boolean,
+    mutate_off_by_one,
 )
 
 PROBLEMS_DIR = Path("data/problems")
@@ -278,3 +279,64 @@ def test(x, y):
     ]
 
     assert changed_lines == [4]
+
+
+def test_off_by_one_index_plus_one_to_minus_one():
+    source = """
+def f(nums, i):
+    return nums[i + 1]
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_off_by_one(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "+"
+    assert result.mutated_operator == "-"
+    assert "nums[i - 1]" in result.mutated_code
+
+
+def test_off_by_one_range_plus_one_to_minus_one():
+    source = """
+def f(n):
+    return list(range(n + 1))
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_off_by_one(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "+"
+    assert result.mutated_operator == "-"
+    assert "range(n - 1)" in result.mutated_code
+
+
+def test_arbitrary_plus_one_is_not_off_by_one():
+    source = """
+def f(x):
+    return x + 1
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_off_by_one(source, Step())
+
+    assert result.changed is False
+    assert result.mutated_code == source

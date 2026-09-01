@@ -36,7 +36,12 @@ BOOLEAN_MUTATIONS = {
     "True": "False",
     "False": "True",
 }
-
+OFF_BY_ONE_MUTATIONS = {
+    "+ 1": "- 1",
+    "- 1": "+ 1",
+    "+1": "-1",
+    "-1": "+1",
+}
 
 # ---------------------------------------------------------------------------
 # Result object
@@ -502,6 +507,246 @@ def mutate_boolean(
         changed=True,
         original_operator=original,
         mutated_operator=mutated,
+        line=line,
+        column=column,
+    )
+
+def _build_parent_map(tree: ast.AST) -> dict:
+    """Build child -> parent relationships for an AST."""
+    parent_map = {}
+
+    for parent in ast.walk(tree):
+        for child in ast.iter_child_nodes(parent):
+            parent_map[child] = parent
+
+    return parent_map
+
+
+def _is_subscript_offset(
+    node: ast.BinOp,
+    parent_map: dict,
+) -> bool:
+    """Return True when node is directly used as an index."""
+
+    parent = parent_map.get(node)
+
+    if not isinstance(parent, ast.Subscript):
+        return False
+
+    return parent.slice is node
+
+
+def _is_range_argument(
+    node: ast.BinOp,
+    parent_map: dict,
+) -> bool:
+    """Return True when node is directly used as a range argument."""
+
+    parent = parent_map.get(node)
+
+    if not isinstance(parent, ast.Call):
+        return False
+
+    if not isinstance(parent.func, ast.Name):
+        return False
+
+    if parent.func.id != "range":
+        return False
+
+    return node in parent.args
+
+
+def _find_binary_operator_offset(
+    source_code: str,
+    binop_node: ast.BinOp,
+    operator_text: str,
+):
+    """Find the exact source position of + or -."""
+
+    offsets = _line_offsets(source_code)
+
+    start = _absolute_offset(
+        offsets,
+        binop_node.lineno,
+        binop_node.col_offset,
+    )
+
+    end = _absolute_offset(
+        offsets,
+        binop_node.end_lineno,
+        binop_node.end_col_offset,
+    )
+
+    segment = source_code[start:end]
+
+    patterns = [
+        f" {operator_text} ",
+        f" {operator_text}",
+        f"{operator_text} ",
+    ]
+
+    for pattern in patterns:
+        index = segment.find(pattern)
+
+        if index != -1:
+            return (
+                start
+                + index
+                + pattern.find(operator_text)
+            )
+
+    return None
+
+
+def _find_off_by_one_mutation(
+    solution_code: str,
+    start_line: int,
+    end_line: int,
+):
+    """
+    Find the first index/range-aware off-by-one candidate.
+
+    Supported:
+
+        arr[i + 1] -> arr[i - 1]
+        arr[i - 1] -> arr[i + 1]
+
+        range(n + 1) -> range(n - 1)
+        range(n - 1) -> range(n + 1)
+
+    Arbitrary arithmetic such as x + 1 is ignored.
+    """
+
+    tree = ast.parse(solution_code)
+    parent_map = _build_parent_map(tree)
+
+    candidates = []
+
+    for node in ast.walk(tree):
+
+        if not isinstance(node, ast.BinOp):
+            continue
+
+        if not (
+            start_line <= node.lineno
+            and node.end_lineno <= end_line
+        ):
+            continue
+
+        if not (
+            isinstance(node.right, ast.Constant)
+            and type(node.right.value) is int
+            and node.right.value == 1
+        ):
+            continue
+
+        if isinstance(node.op, ast.Add):
+            original_operator = "+"
+            mutated_operator = "-"
+
+        elif isinstance(node.op, ast.Sub):
+            original_operator = "-"
+            mutated_operator = "+"
+
+        else:
+            continue
+
+        is_index = _is_subscript_offset(
+            node,
+            parent_map,
+        )
+
+        is_range = _is_range_argument(
+            node,
+            parent_map,
+        )
+
+        if not (is_index or is_range):
+            continue
+
+        operator_offset = _find_binary_operator_offset(
+            solution_code,
+            node,
+            original_operator,
+        )
+
+        if operator_offset is None:
+            continue
+
+        candidates.append(
+            (
+                operator_offset,
+                original_operator,
+                mutated_operator,
+                node.lineno,
+            )
+        )
+
+    if not candidates:
+        return None
+
+    return sorted(
+        candidates,
+        key=lambda item: item[0],
+    )[0]
+
+
+def mutate_off_by_one(
+    solution_code: str,
+    step,
+) -> MutationResult:
+    """
+    Apply exactly one index/range-aware off-by-one mutation.
+    """
+
+    result = _find_off_by_one_mutation(
+        solution_code=solution_code,
+        start_line=step.start_line,
+        end_line=step.end_line,
+    )
+
+    if result is None:
+
+        return MutationResult(
+            problem_id=step.problem_id,
+            solution_id=step.solution_id,
+            step_id=step.step_id,
+            mutation_type="off_by_one",
+            original_code=solution_code,
+            mutated_code=solution_code,
+            changed=False,
+        )
+
+    (
+        operator_offset,
+        original_operator,
+        mutated_operator,
+        line,
+    ) = result
+
+    mutated_code = (
+        solution_code[:operator_offset]
+        + mutated_operator
+        + solution_code[
+            operator_offset + len(original_operator):
+        ]
+    )
+
+    ast.parse(mutated_code)
+
+    offsets = _line_offsets(solution_code)
+    column = operator_offset - offsets[line - 1]
+
+    return MutationResult(
+        problem_id=step.problem_id,
+        solution_id=step.solution_id,
+        step_id=step.step_id,
+        mutation_type="off_by_one",
+        original_code=solution_code,
+        mutated_code=mutated_code,
+        changed=True,
+        original_operator=original_operator,
+        mutated_operator=mutated_operator,
         line=line,
         column=column,
     )
