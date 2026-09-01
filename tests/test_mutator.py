@@ -4,8 +4,10 @@ from pathlib import Path
 import pytest
 
 from partner_b.decomposition.block import decompose_blocks
-from partner_b.mutation.mutator import mutate_comparison
-
+from partner_b.mutation.mutator import (
+    mutate_comparison,
+    mutate_boolean,
+)
 
 PROBLEMS_DIR = Path("data/problems")
 
@@ -144,3 +146,135 @@ def test(x, y):
     assert result.changed is True
     assert result.original_operator == operator
     assert result.mutated_operator == expected
+def test_boolean_and_to_or():
+    source = """
+def test(x, y):
+    return x > 0 and y > 0
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_boolean(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "and"
+    assert result.mutated_operator == "or"
+    assert "x > 0 or y > 0" in result.mutated_code
+
+
+def test_boolean_or_to_and():
+    source = """
+def test(x, y):
+    return x > 0 or y > 0
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_boolean(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "or"
+    assert result.mutated_operator == "and"
+    assert "x > 0 and y > 0" in result.mutated_code
+
+
+def test_boolean_true_to_false():
+    source = """
+def test():
+    return True
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_boolean(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "True"
+    assert result.mutated_operator == "False"
+    assert "return False" in result.mutated_code
+
+
+def test_boolean_false_to_true():
+    source = """
+def test():
+    return False
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_boolean(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "False"
+    assert result.mutated_operator == "True"
+    assert "return True" in result.mutated_code
+
+
+def test_boolean_mutation_is_syntax_valid():
+    source = """
+def test(x, y):
+    return x > 0 and y > 0
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_01"
+        start_line = 3
+        end_line = 3
+
+    result = mutate_boolean(source, Step())
+
+    compile(result.mutated_code, "<mutated>", "exec")
+
+
+def test_boolean_mutation_only_changes_target_line():
+    source = """
+def test(x, y):
+    value = x > 0
+    return x > 0 and y > 0
+"""
+
+    class Step:
+        problem_id = "test"
+        solution_id = "solution"
+        step_id = "block_02"
+        start_line = 4
+        end_line = 4
+
+    result = mutate_boolean(source, Step())
+
+    original_lines = source.splitlines()
+    mutated_lines = result.mutated_code.splitlines()
+
+    changed_lines = [
+        index
+        for index, (before, after)
+        in enumerate(
+            zip(original_lines, mutated_lines),
+            start=1,
+        )
+        if before != after
+    ]
+
+    assert changed_lines == [4]
