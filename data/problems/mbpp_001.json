@@ -1,0 +1,14 @@
+{
+  "pilot_id": "mbpp_001",
+  "task_id": 790,
+  "prompt": "Write a python function to check whether every even index contains even numbers of a given list.",
+  "code": "def even_position(nums):\n\treturn all(nums[i]%2==i%2 for i in range(len(nums)))",
+  "test_imports": [],
+  "test_list": [
+    "assert even_position([3,2,1]) == False",
+    "assert even_position([1,2,3]) == False",
+    "assert even_position([2,1,4]) == True"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb",
+  "source_split": "train"
+}
