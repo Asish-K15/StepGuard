@@ -20,27 +20,51 @@ def load_problem(path: Path) -> dict:
 
 
 def get_required_function(problem: dict) -> str:
-    """Extract the required function name from the MBPP reference code."""
+    """Find the top-level function called by the MBPP tests."""
+
     tree = ast.parse(problem["code"])
 
-    functions = [
+    top_level_functions = {
         node.name
         for node in tree.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-    ]
+        if isinstance(
+            node,
+            (ast.FunctionDef, ast.AsyncFunctionDef),
+        )
+    }
 
-    if not functions:
+    called_functions = set()
+
+    for test in problem["test_list"]:
+        try:
+            test_tree = ast.parse(test)
+        except SyntaxError:
+            continue
+
+        for node in ast.walk(test_tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    called_functions.add(node.func.id)
+
+    matching_functions = (
+        top_level_functions & called_functions
+    )
+
+    if not matching_functions:
         raise ValueError(
-            f"No top-level function found for {problem['pilot_id']}"
+            f"Could not identify benchmark entry function "
+            f"for {problem['pilot_id']}. "
+            f"Top-level functions: {sorted(top_level_functions)}"
         )
 
-    if len(functions) > 1:
+    if len(matching_functions) > 1:
         raise ValueError(
-            f"Multiple top-level functions found for "
-            f"{problem['pilot_id']}: {functions}"
+            f"Multiple benchmark entry functions found for "
+            f"{problem['pilot_id']}: "
+            f"{sorted(matching_functions)}"
         )
 
-    return functions[0]
+    return next(iter(matching_functions))
 
 
 def build_prompt(problem: dict, function_name: str) -> str:
@@ -173,22 +197,43 @@ def generate_for_problem(problem: dict, count: int = 3) -> list[dict]:
 
 
 def main():
-    problem_path = PROBLEMS_DIR / "mbpp_001.json"
+    problem_paths = sorted(PROBLEMS_DIR.glob("mbpp_*.json"))
 
-    if not problem_path.exists():
-        raise FileNotFoundError(problem_path)
-
-    problem = load_problem(problem_path)
+    if not problem_paths:
+        raise FileNotFoundError(
+            f"No MBPP problems found in {PROBLEMS_DIR}"
+        )
 
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-    records = generate_for_problem(problem, count=3)
+    all_records = []
+
+    for problem_path in problem_paths:
+        problem = load_problem(problem_path)
+
+        print(
+            f"\nProcessing {problem['pilot_id']} "
+            f"(task {problem['task_id']})"
+        )
+
+        records = generate_for_problem(
+            problem,
+            count=1,
+        )
+
+        all_records.extend(records)
 
     with OUTPUT_FILE.open("w", encoding="utf-8") as f:
-        for record in records:
-            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        for record in all_records:
+            f.write(
+                json.dumps(record, ensure_ascii=False)
+                + "\n"
+            )
 
-    print(f"\nWrote {len(records)} candidates to {OUTPUT_FILE}")
+    print(
+        f"\nWrote {len(all_records)} candidates "
+        f"to {OUTPUT_FILE}"
+    )
 
 
 if __name__ == "__main__":

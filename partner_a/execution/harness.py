@@ -98,10 +98,13 @@ def run_candidate(
 
 
 def main():
-    problem_path = Path("data/problems/mbpp_001.json")
+    problems_dir = Path("data/problems")
     solutions_path = Path("data/solutions/candidates.jsonl")
 
-    problem = json.loads(problem_path.read_text(encoding="utf-8"))
+    problems = {
+        path.stem: json.loads(path.read_text(encoding="utf-8"))
+        for path in problems_dir.glob("mbpp_*.json")
+    }
 
     solutions = [
         json.loads(line)
@@ -110,6 +113,18 @@ def main():
     ]
 
     for solution in solutions:
+        problem_id = solution["problem_id"]
+
+        if problem_id not in problems:
+            print(
+                solution["solution_id"],
+                "-> HARNESS_ERROR",
+                f"(unknown problem: {problem_id})",
+            )
+            continue
+
+        problem = problems[problem_id]
+
         result = run_candidate(
             solution["code"],
             problem["test_list"],
