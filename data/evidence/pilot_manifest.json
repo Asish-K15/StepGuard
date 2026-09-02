@@ -1,0 +1,41 @@
+﻿{
+  "project": "StepGuard",
+  "experiment": "pilot",
+  "scope": {
+    "problem_count": 5,
+    "candidate_count": 25,
+    "baseline_pass_count": 25,
+    "baseline_pass_rate": 1.0
+  },
+  "mutation_evaluation": {
+    "mutation_count": 99,
+    "detected_count": 86,
+    "undetected_count": 13,
+    "detection_rate": 0.8686868686868687
+  },
+  "mutation_types": [
+    "boolean_flip",
+    "comparison_swap",
+    "off_by_one"
+  ],
+  "evidence": {
+    "mutation_execution_results": "data/mutations/mutation_execution_results.jsonl",
+    "step_evidence": "data/evidence/step_evidence.jsonl",
+    "step_analysis": "data/evidence/step_analysis.jsonl",
+    "pilot_findings": "data/evidence/pilot_findings.json",
+    "mutation_type_analysis": "data/evidence/mutation_type_analysis.json",
+    "undetected_mutation_analysis": "data/evidence/undetected_mutation_analysis.json",
+    "survivor_classification": "data/evidence/survivor_classification.json",
+    "pilot_summary": "data/evidence/pilot_summary.json",
+    "pilot_report": "data/evidence/pilot_report.md",
+    "pilot_limitations": "data/evidence/pilot_limitations.md"
+  },
+  "reproducibility": {
+    "baseline_generation": "Qwen qwen2.5-coder:7b",
+    "test_command": "python -m pytest -q"
+  },
+  "interpretation": {
+    "status": "exploratory_pilot",
+    "generalization": "not_supported_beyond_evaluated_dataset"
+  }
+}
