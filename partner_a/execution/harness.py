@@ -99,24 +99,24 @@ def run_candidate(
 
 def main():
     problems_dir = Path("data/problems")
-    solutions_path = Path("data/solutions/candidates.jsonl")
-    results_path = Path("data/solutions/baseline_results.jsonl")
+    mutations_path = Path("data/mutations/mutation_records.jsonl")
+    results_path = Path("data/mutations/mutation_execution_results.jsonl")
 
     problems = {
         path.stem: json.loads(path.read_text(encoding="utf-8"))
         for path in problems_dir.glob("mbpp_*.json")
     }
 
-    solutions = [
+    mutations = [
         json.loads(line)
-        for line in solutions_path.read_text(encoding="utf-8").splitlines()
+        for line in mutations_path.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
 
-    baseline_results = []
+    execution_results = []
 
-    for solution in solutions:
-        problem_id = solution["problem_id"]
+    for mutation in mutations:
+        problem_id = mutation["problem_id"]
 
         if problem_id not in problems:
             result = {
@@ -129,24 +129,34 @@ def main():
             problem = problems[problem_id]
 
             result = run_candidate(
-                solution["code"],
+                mutation["mutated_code"],
                 problem["test_list"],
             )
 
-        baseline_record = {
+        execution_record = {
             "problem_id": problem_id,
-            "solution_id": solution["solution_id"],
-            "solution_code": solution["code"],
-            "baseline_result": result["status"],
+            "solution_id": mutation["solution_id"],
+            "step_id": mutation["step_id"],
+            "mutation_type": mutation["mutation_type"],
+            "original_code": mutation["original_code"],
+            "mutated_code": mutation["mutated_code"],
+            "changed": mutation["changed"],
+            "original_operator": mutation.get("original_operator"),
+            "mutated_operator": mutation.get("mutated_operator"),
+            "line": mutation.get("line"),
+            "column": mutation.get("column"),
+            "mutation_result": result["status"],
             "stdout": result["stdout"],
             "stderr": result["stderr"],
             "returncode": result["returncode"],
         }
 
-        baseline_results.append(baseline_record)
+        execution_results.append(execution_record)
 
         print(
-            solution["solution_id"],
+            mutation["solution_id"],
+            mutation["step_id"],
+            mutation["mutation_type"],
             "->",
             result["status"],
         )
@@ -154,14 +164,14 @@ def main():
     results_path.write_text(
         "\n".join(
             json.dumps(record, ensure_ascii=False)
-            for record in baseline_results
+            for record in execution_results
         )
         + "\n",
         encoding="utf-8",
     )
 
     print(
-        f"Wrote {len(baseline_results)} baseline results "
+        f"Wrote {len(execution_results)} mutation execution results "
         f"to {results_path}"
     )
 
