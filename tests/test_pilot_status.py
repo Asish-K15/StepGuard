@@ -162,3 +162,40 @@ def test_status_json_interpretation_metadata():
 
     assert data["status"] == "exploratory_pilot"
     assert data["generalization"] == "not_supported_beyond_evaluated_dataset"
+
+def test_status_summary_output():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--summary"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    expected = [
+        "StepGuard pilot: exploratory_pilot",
+        "Problems: 5",
+        "Candidates: 25",
+        "Mutations: 99",
+        "Detected: 86",
+        "Undetected: 13",
+        "Detection rate: 0.8687",
+    ]
+
+    for line in expected:
+        assert line in result.stdout
+
+
+def test_status_validate_summary_output():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--validate", "--summary"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "StepGuard pilot validation: PASS" in result.stdout
+    assert "StepGuard pilot: exploratory_pilot" in result.stdout
+    assert "Detection rate: 0.8687" in result.stdout

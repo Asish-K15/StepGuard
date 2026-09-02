@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import subprocess
 import sys
@@ -58,6 +58,16 @@ def print_human(status):
     print(f"Survivor patterns: {status['survivor_patterns']}")
 
 
+def print_summary(status):
+    print(f"StepGuard pilot: {status['status']}")
+    print(f"Problems: {status['problems']}")
+    print(f"Candidates: {status['candidates']}")
+    print(f"Mutations: {status['mutations']}")
+    print(f"Detected: {status['detected']}")
+    print(f"Undetected: {status['undetected']}")
+    print(f"Detection rate: {status['detection_rate']:.4f}")
+
+
 def validate(quiet=False):
     return subprocess.run(
         [sys.executable, str(VALIDATOR)],
@@ -79,6 +89,11 @@ def main():
         action="store_true",
         help="validate the pilot before reporting status",
     )
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="print the concise pilot summary",
+    )
     args = parser.parse_args()
 
     if args.validate:
@@ -99,6 +114,8 @@ def main():
 
     if args.json:
         print(json.dumps(status, sort_keys=True))
+    elif args.summary:
+        print_summary(status)
     else:
         print_human(status)
 
