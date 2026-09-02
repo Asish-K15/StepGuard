@@ -1,0 +1,1 @@
+"""Partner B integration pipeline for StepGuard Stage 0A."""
