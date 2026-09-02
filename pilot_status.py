@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SUMMARY = ROOT / "data" / "evidence" / "pilot_summary.json"
+MANIFEST = ROOT / "data" / "evidence" / "pilot_manifest.json"
 VALIDATOR = ROOT / "partner_a" / "evidence" / "validate_pilot.py"
 
 
@@ -15,7 +16,12 @@ def load_summary():
         return json.load(handle)
 
 
-def build_status(data):
+def load_manifest():
+    with MANIFEST.open("r", encoding="utf-8-sig") as handle:
+        return json.load(handle)
+
+
+def build_status(data, interpretation):
     scope = data["scope"]
     results = data["mutation_results"]
     step_analysis = data["step_analysis"]
@@ -32,11 +38,15 @@ def build_status(data):
         "detection_rate": results["detection_rate"],
         "step_groups": step_analysis["step_count"],
         "survivor_patterns": len(survivors),
+        "status": interpretation["status"],
+        "generalization": interpretation["generalization"],
     }
 
 
 def print_human(status):
     print(f"Schema version: {status['schema_version']}")
+    print(f"Status: {status['status']}")
+    print(f"Generalization: {status['generalization']}")
     print(f"Problems: {status['problems']}")
     print(f"Candidates: {status['candidates']}")
     print(f"Baseline pass rate: {status['baseline_pass_rate']:.4f}")
@@ -83,7 +93,9 @@ def main():
         if result.returncode != 0:
             raise SystemExit(result.returncode)
 
-    status = build_status(load_summary())
+    summary = load_summary()
+    interpretation = load_manifest()["interpretation"]
+    status = build_status(summary, interpretation)
 
     if args.json:
         print(json.dumps(status, sort_keys=True))
@@ -93,4 +105,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
