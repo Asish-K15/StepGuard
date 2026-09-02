@@ -1,0 +1,188 @@
+{
+  "pilot": {
+    "problem_count": 5,
+    "candidate_count": 25,
+    "baseline_pass_count": 25,
+    "baseline_pass_rate": 1.0,
+    "mutation_count": 99,
+    "detected_count": 86,
+    "undetected_count": 13,
+    "detection_rate": 0.8686868686868687
+  },
+  "mutation_types": {
+    "boolean_flip": 11,
+    "comparison_swap": 74,
+    "off_by_one": 14
+  },
+  "by_problem": {
+    "mbpp_001": {
+      "mutation_count": 13,
+      "results": {
+        "FAIL": 13
+      },
+      "mutation_types": {
+        "boolean_flip": 3,
+        "comparison_swap": 10
+      },
+      "detected_count": 13,
+      "undetected_count": 0,
+      "detection_rate": 1.0
+    },
+    "mbpp_002": {
+      "mutation_count": 20,
+      "results": {
+        "FAIL": 20
+      },
+      "mutation_types": {
+        "comparison_swap": 10,
+        "off_by_one": 10
+      },
+      "detected_count": 20,
+      "undetected_count": 0,
+      "detection_rate": 1.0
+    },
+    "mbpp_003": {
+      "mutation_count": 30,
+      "results": {
+        "FAIL": 10,
+        "PASS": 5,
+        "RUNTIME_ERROR": 15
+      },
+      "mutation_types": {
+        "comparison_swap": 30
+      },
+      "detected_count": 25,
+      "undetected_count": 5,
+      "detection_rate": 0.8333333333333334
+    },
+    "mbpp_004": {
+      "mutation_count": 26,
+      "results": {
+        "FAIL": 14,
+        "PASS": 8,
+        "RUNTIME_ERROR": 4
+      },
+      "mutation_types": {
+        "boolean_flip": 8,
+        "comparison_swap": 14,
+        "off_by_one": 4
+      },
+      "detected_count": 18,
+      "undetected_count": 8,
+      "detection_rate": 0.6923076923076923
+    },
+    "mbpp_005": {
+      "mutation_count": 10,
+      "results": {
+        "FAIL": 10
+      },
+      "mutation_types": {
+        "comparison_swap": 10
+      },
+      "detected_count": 10,
+      "undetected_count": 0,
+      "detection_rate": 1.0
+    }
+  },
+  "step_analysis": {
+    "step_count": 77,
+    "fully_detected": 64,
+    "partially_detected": 8,
+    "undetected": 5,
+    "undetected_steps": [
+      {
+        "problem_id": "mbpp_003",
+        "solution_id": "mbpp_003_sol_001",
+        "step_id": "block_08",
+        "mutation_count": 1,
+        "detection_rate": 0.0
+      },
+      {
+        "problem_id": "mbpp_003",
+        "solution_id": "mbpp_003_sol_002",
+        "step_id": "block_08",
+        "mutation_count": 1,
+        "detection_rate": 0.0
+      },
+      {
+        "problem_id": "mbpp_003",
+        "solution_id": "mbpp_003_sol_003",
+        "step_id": "block_08",
+        "mutation_count": 1,
+        "detection_rate": 0.0
+      },
+      {
+        "problem_id": "mbpp_003",
+        "solution_id": "mbpp_003_sol_004",
+        "step_id": "block_08",
+        "mutation_count": 1,
+        "detection_rate": 0.0
+      },
+      {
+        "problem_id": "mbpp_003",
+        "solution_id": "mbpp_003_sol_005",
+        "step_id": "block_08",
+        "mutation_count": 1,
+        "detection_rate": 0.0
+      }
+    ],
+    "partial_steps": [
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_001",
+        "step_id": "block_05",
+        "mutation_count": 2,
+        "detection_rate": 0.5
+      },
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_001",
+        "step_id": "func_01",
+        "mutation_count": 2,
+        "detection_rate": 0.5
+      },
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_002",
+        "step_id": "block_05",
+        "mutation_count": 2,
+        "detection_rate": 0.5
+      },
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_002",
+        "step_id": "func_01",
+        "mutation_count": 2,
+        "detection_rate": 0.5
+      },
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_004",
+        "step_id": "block_05",
+        "mutation_count": 2,
+        "detection_rate": 0.5
+      },
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_004",
+        "step_id": "func_01",
+        "mutation_count": 3,
+        "detection_rate": 0.6666666666666666
+      },
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_005",
+        "step_id": "block_05",
+        "mutation_count": 2,
+        "detection_rate": 0.5
+      },
+      {
+        "problem_id": "mbpp_004",
+        "solution_id": "mbpp_004_sol_005",
+        "step_id": "func_01",
+        "mutation_count": 2,
+        "detection_rate": 0.5
+      }
+    ]
+  }
+}
