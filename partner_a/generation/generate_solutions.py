@@ -218,7 +218,7 @@ def main():
 
         records = generate_for_problem(
             problem,
-            count=1,
+            count=5,
         )
 
         all_records.extend(records)
@@ -235,6 +235,27 @@ def main():
         f"to {OUTPUT_FILE}"
     )
 
+    expected_problem_count = 5
+    expected_candidates_per_problem = 5
 
+    assert len(all_records) == expected_problem_count * expected_candidates_per_problem, (
+       f"Expected 25 candidates, found {len(all_records)}"
+    )
+
+    counts = {}
+    for record in all_records:
+      problem_id = record["problem_id"]
+      counts[problem_id] = counts.get(problem_id, 0) + 1
+
+    assert len(counts) == expected_problem_count, (
+    f"Expected {expected_problem_count} problems, found {len(counts)}"
+    )
+
+    assert all(
+      count == expected_candidates_per_problem
+      for count in counts.values()
+    ), f"Expected 5 candidates per problem, got {counts}"
+
+    print("Validated 5 problems x 5 candidates = 25 candidates.")
 if __name__ == "__main__":
     main()

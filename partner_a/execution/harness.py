@@ -100,6 +100,7 @@ def run_candidate(
 def main():
     problems_dir = Path("data/problems")
     solutions_path = Path("data/solutions/candidates.jsonl")
+    results_path = Path("data/solutions/baseline_results.jsonl")
 
     problems = {
         path.stem: json.loads(path.read_text(encoding="utf-8"))
@@ -112,29 +113,57 @@ def main():
         if line.strip()
     ]
 
+    baseline_results = []
+
     for solution in solutions:
         problem_id = solution["problem_id"]
 
         if problem_id not in problems:
-            print(
-                solution["solution_id"],
-                "-> HARNESS_ERROR",
-                f"(unknown problem: {problem_id})",
+            result = {
+                "status": "HARNESS_ERROR",
+                "stdout": "",
+                "stderr": f"unknown problem: {problem_id}",
+                "returncode": None,
+            }
+        else:
+            problem = problems[problem_id]
+
+            result = run_candidate(
+                solution["code"],
+                problem["test_list"],
             )
-            continue
 
-        problem = problems[problem_id]
+        baseline_record = {
+            "problem_id": problem_id,
+            "solution_id": solution["solution_id"],
+            "solution_code": solution["code"],
+            "baseline_result": result["status"],
+            "stdout": result["stdout"],
+            "stderr": result["stderr"],
+            "returncode": result["returncode"],
+        }
 
-        result = run_candidate(
-            solution["code"],
-            problem["test_list"],
-        )
+        baseline_results.append(baseline_record)
 
         print(
             solution["solution_id"],
             "->",
             result["status"],
         )
+
+    results_path.write_text(
+        "\n".join(
+            json.dumps(record, ensure_ascii=False)
+            for record in baseline_results
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    print(
+        f"Wrote {len(baseline_results)} baseline results "
+        f"to {results_path}"
+    )
 
 
 if __name__ == "__main__":
