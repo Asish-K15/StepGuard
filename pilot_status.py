@@ -36,6 +36,7 @@ def build_status(data):
 
 
 def print_human(status):
+    print(f"Schema version: {status['schema_version']}")
     print(f"Problems: {status['problems']}")
     print(f"Candidates: {status['candidates']}")
     print(f"Baseline pass rate: {status['baseline_pass_rate']:.4f}")

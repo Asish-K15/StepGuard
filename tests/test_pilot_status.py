@@ -109,3 +109,14 @@ def test_status_schema_version():
 
     assert data["schema_version"] == 1
 
+
+def test_status_human_schema_version():
+    result = subprocess.run(
+        [sys.executable, str(STATUS)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "Schema version: 1" in result.stdout
