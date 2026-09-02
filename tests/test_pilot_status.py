@@ -199,3 +199,46 @@ def test_status_validate_summary_output():
     assert "StepGuard pilot validation: PASS" in result.stdout
     assert "StepGuard pilot: exploratory_pilot" in result.stdout
     assert "Detection rate: 0.8687" in result.stdout
+def test_status_summary_json_output():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--summary-json"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    data = json.loads(result.stdout)
+
+    assert data == {
+        "candidates": 25,
+        "detected": 86,
+        "detection_rate": 0.8686868686868687,
+        "mutations": 99,
+        "problems": 5,
+        "status": "exploratory_pilot",
+        "undetected": 13,
+    }
+
+
+def test_status_validate_summary_json_output():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--validate", "--summary-json"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert result.stderr == ""
+
+    data = json.loads(result.stdout)
+
+    assert data["status"] == "exploratory_pilot"
+    assert data["problems"] == 5
+    assert data["candidates"] == 25
+    assert data["mutations"] == 99
+    assert data["detected"] == 86
+    assert data["undetected"] == 13
+    assert data["detection_rate"] == 0.8686868686868687

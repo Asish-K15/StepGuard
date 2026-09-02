@@ -94,12 +94,17 @@ def main():
         action="store_true",
         help="print the concise pilot summary",
     )
+    parser.add_argument(
+        "--summary-json",
+        action="store_true",
+        help="print the concise pilot summary as JSON",
+    )
     args = parser.parse_args()
 
     if args.validate:
-        result = validate(quiet=args.json)
+        result = validate(quiet=args.json or args.summary_json)
 
-        if not args.json:
+        if not (args.json or args.summary_json):
             if result.stdout:
                 print(result.stdout, end="")
             if result.stderr:
@@ -114,6 +119,17 @@ def main():
 
     if args.json:
         print(json.dumps(status, sort_keys=True))
+    elif args.summary_json:
+        summary_status = {
+            "status": status["status"],
+            "problems": status["problems"],
+            "candidates": status["candidates"],
+            "mutations": status["mutations"],
+            "detected": status["detected"],
+            "undetected": status["undetected"],
+            "detection_rate": status["detection_rate"],
+        }
+        print(json.dumps(summary_status, sort_keys=True))
     elif args.summary:
         print_summary(status)
     else:
