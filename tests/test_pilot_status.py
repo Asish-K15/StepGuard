@@ -55,6 +55,7 @@ def test_status_json_output():
         "detection_rate": 0.8686868686868687,
         "mutations": 99,
         "problems": 5,
+        "schema_version": 1,
         "step_groups": 77,
         "survivor_patterns": 2,
         "undetected": 13,
@@ -93,3 +94,18 @@ def test_status_validate_json_output():
     assert data["undetected"] == 13
     assert data["step_groups"] == 77
     assert data["survivor_patterns"] == 2
+
+def test_status_schema_version():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--json"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    data = __import__("json").loads(result.stdout)
+
+    assert data["schema_version"] == 1
+

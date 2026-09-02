@@ -22,6 +22,7 @@ def build_status(data):
     survivors = data["survivor_patterns"]
 
     return {
+        "schema_version": 1,
         "problems": scope["problem_count"],
         "candidates": scope["candidate_count"],
         "baseline_pass_rate": scope["baseline_pass_rate"],
@@ -91,3 +92,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
