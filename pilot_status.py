@@ -46,10 +46,12 @@ def print_human(status):
     print(f"Survivor patterns: {status['survivor_patterns']}")
 
 
-def validate():
+def validate(quiet=False):
     return subprocess.run(
         [sys.executable, str(VALIDATOR)],
         cwd=ROOT,
+        capture_output=quiet,
+        text=True,
     )
 
 
@@ -68,7 +70,14 @@ def main():
     args = parser.parse_args()
 
     if args.validate:
-        result = validate()
+        result = validate(quiet=args.json)
+
+        if not args.json:
+            if result.stdout:
+                print(result.stdout, end="")
+            if result.stderr:
+                print(result.stderr, file=sys.stderr, end="")
+
         if result.returncode != 0:
             raise SystemExit(result.returncode)
 

@@ -72,3 +72,24 @@ def test_status_validate_mode():
     assert "StepGuard pilot validation: PASS" in result.stdout
     assert "Problems: 5" in result.stdout
     assert "Detection rate: 0.8687" in result.stdout
+
+def test_status_validate_json_output():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--validate", "--json"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert result.stderr == ""
+
+    data = __import__("json").loads(result.stdout)
+
+    assert data["problems"] == 5
+    assert data["candidates"] == 25
+    assert data["mutations"] == 99
+    assert data["detected"] == 86
+    assert data["undetected"] == 13
+    assert data["step_groups"] == 77
+    assert data["survivor_patterns"] == 2
