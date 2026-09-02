@@ -35,3 +35,27 @@ def test_status_output():
 
     for line in expected:
         assert line in result.stdout
+
+def test_status_json_output():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--json"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+
+    data = __import__("json").loads(result.stdout)
+
+    assert data == {
+        "baseline_pass_rate": 1.0,
+        "candidates": 25,
+        "detected": 86,
+        "detection_rate": 0.8686868686868687,
+        "mutations": 99,
+        "problems": 5,
+        "step_groups": 77,
+        "survivor_patterns": 2,
+        "undetected": 13,
+    }
