@@ -1,0 +1,160 @@
+{
+  "undetected_count": 13,
+  "problems_with_undetected_mutations": 2,
+  "by_problem": {
+    "mbpp_003": {
+      "mutation_count": 5,
+      "mutation_types": {
+        "comparison_swap": 5
+      },
+      "steps": [
+        "block_08"
+      ],
+      "operator_changes": [
+        "==->!="
+      ],
+      "locations": [
+        "line_12"
+      ],
+      "solution_count": 5
+    },
+    "mbpp_004": {
+      "mutation_count": 8,
+      "mutation_types": {
+        "boolean_flip": 8
+      },
+      "steps": [
+        "block_05",
+        "func_01"
+      ],
+      "operator_changes": [
+        "or->and"
+      ],
+      "locations": [
+        "line_10",
+        "line_11",
+        "line_9"
+      ],
+      "solution_count": 4
+    }
+  },
+  "records": [
+    {
+      "problem_id": "mbpp_003",
+      "solution_id": "mbpp_003_sol_001",
+      "step_id": "block_08",
+      "mutation_type": "comparison_swap",
+      "line": 12,
+      "original_operator": "==",
+      "mutated_operator": "!="
+    },
+    {
+      "problem_id": "mbpp_003",
+      "solution_id": "mbpp_003_sol_002",
+      "step_id": "block_08",
+      "mutation_type": "comparison_swap",
+      "line": 12,
+      "original_operator": "==",
+      "mutated_operator": "!="
+    },
+    {
+      "problem_id": "mbpp_003",
+      "solution_id": "mbpp_003_sol_003",
+      "step_id": "block_08",
+      "mutation_type": "comparison_swap",
+      "line": 12,
+      "original_operator": "==",
+      "mutated_operator": "!="
+    },
+    {
+      "problem_id": "mbpp_003",
+      "solution_id": "mbpp_003_sol_004",
+      "step_id": "block_08",
+      "mutation_type": "comparison_swap",
+      "line": 12,
+      "original_operator": "==",
+      "mutated_operator": "!="
+    },
+    {
+      "problem_id": "mbpp_003",
+      "solution_id": "mbpp_003_sol_005",
+      "step_id": "block_08",
+      "mutation_type": "comparison_swap",
+      "line": 12,
+      "original_operator": "==",
+      "mutated_operator": "!="
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_001",
+      "step_id": "func_01",
+      "mutation_type": "boolean_flip",
+      "line": 10,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_001",
+      "step_id": "block_05",
+      "mutation_type": "boolean_flip",
+      "line": 10,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_002",
+      "step_id": "func_01",
+      "mutation_type": "boolean_flip",
+      "line": 9,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_002",
+      "step_id": "block_05",
+      "mutation_type": "boolean_flip",
+      "line": 9,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_004",
+      "step_id": "func_01",
+      "mutation_type": "boolean_flip",
+      "line": 9,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_004",
+      "step_id": "block_05",
+      "mutation_type": "boolean_flip",
+      "line": 9,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_005",
+      "step_id": "func_01",
+      "mutation_type": "boolean_flip",
+      "line": 11,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    },
+    {
+      "problem_id": "mbpp_004",
+      "solution_id": "mbpp_004_sol_005",
+      "step_id": "block_05",
+      "mutation_type": "boolean_flip",
+      "line": 11,
+      "original_operator": "or",
+      "mutated_operator": "and"
+    }
+  ]
+}
