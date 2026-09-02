@@ -59,3 +59,16 @@ def test_status_json_output():
         "survivor_patterns": 2,
         "undetected": 13,
     }
+
+def test_status_validate_mode():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--validate"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "StepGuard pilot validation: PASS" in result.stdout
+    assert "Problems: 5" in result.stdout
+    assert "Detection rate: 0.8687" in result.stdout

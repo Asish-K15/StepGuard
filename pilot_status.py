@@ -1,10 +1,13 @@
 ﻿import argparse
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
 SUMMARY = ROOT / "data" / "evidence" / "pilot_summary.json"
+VALIDATOR = ROOT / "partner_a" / "evidence" / "validate_pilot.py"
 
 
 def load_summary():
@@ -43,6 +46,13 @@ def print_human(status):
     print(f"Survivor patterns: {status['survivor_patterns']}")
 
 
+def validate():
+    return subprocess.run(
+        [sys.executable, str(VALIDATOR)],
+        cwd=ROOT,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -50,7 +60,17 @@ def main():
         action="store_true",
         help="print pilot status as JSON",
     )
+    parser.add_argument(
+        "--validate",
+        action="store_true",
+        help="validate the pilot before reporting status",
+    )
     args = parser.parse_args()
+
+    if args.validate:
+        result = validate()
+        if result.returncode != 0:
+            raise SystemExit(result.returncode)
 
     status = build_status(load_summary())
 
