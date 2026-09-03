@@ -210,7 +210,7 @@ def main(
     output_file: Path = OUTPUT_FILE,
     candidates_per_problem: int = 5,
 ):
-    problem_paths = sorted(problems_dir.glob("mbpp_*.json"))
+    problem_paths = sorted(problems_dir.glob("*.json"))
 
     if not problem_paths:
         raise FileNotFoundError(
