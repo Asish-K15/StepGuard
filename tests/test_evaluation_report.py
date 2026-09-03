@@ -72,6 +72,20 @@ def make_evaluation():
     }
 
 
+def make_mutation_eligibility():
+    return {
+        "scope": {
+            "baseline_passing_candidates": 60,
+        },
+        "candidate_eligibility": {
+            "eligible_candidates": 20,
+            "ineligible_candidates": 40,
+            "eligibility_rate": 1 / 3,
+        },
+        "by_problem": {},
+    }
+
+
 def make_comparison():
     return {
         "scope": {
@@ -122,6 +136,7 @@ def test_build_report_contains_required_sections_and_results():
         make_pilot(),
         make_evaluation(),
         make_comparison(),
+        make_mutation_eligibility(),
     )
 
     assert "# StepGuard Larger Evaluation Report" in report
@@ -139,12 +154,17 @@ def test_build_report_contains_required_sections_and_results():
     assert "33.3%" in report
     assert "100.0%" in report
 
+    assert "eligibility analysis" in report
+    assert "20 of 60" in report
+    assert "eligible candidates exactly matched" in report
+
 
 def test_build_report_qualifies_detection_and_avoids_overclaim():
     report = build_report(
         make_pilot(),
         make_evaluation(),
         make_comparison(),
+        make_mutation_eligibility(),
     )
 
     assert (
@@ -170,3 +190,31 @@ def test_build_report_qualifies_detection_and_avoids_overclaim():
     )
 
     assert "detects 100% of bugs" not in report.lower()
+
+
+def test_build_report_explains_mutation_generation_coverage():
+    report = build_report(
+        make_pilot(),
+        make_evaluation(),
+        make_comparison(),
+        make_mutation_eligibility(),
+    )
+
+    assert (
+        "60 baseline-passing candidates" in report
+    )
+
+    assert (
+        "20 of 60 baseline-passing candidates were eligible under the "
+        "current mutation rules" in report
+    )
+
+    assert (
+        "40 were ineligible" in report
+    )
+
+    assert (
+        "The eligible candidates exactly matched the candidates "
+        "that actually generated mutations."
+        in report
+    )

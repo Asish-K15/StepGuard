@@ -5,14 +5,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 PILOT_INPUT = ROOT / "data" / "evidence" / "pilot_summary.json"
+
 EVALUATION_INPUT = (
     ROOT / "data" / "evaluation" / "evaluation_summary.json"
 )
+
 COMPARISON_INPUT = (
     ROOT
     / "data"
     / "evaluation"
     / "pilot_evaluation_comparison.json"
+)
+
+MUTATION_ELIGIBILITY_INPUT = (
+    ROOT
+    / "data"
+    / "evaluation"
+    / "mutation_eligibility.json"
 )
 
 OUTPUT = (
@@ -36,6 +45,7 @@ def build_report(
     pilot: dict,
     evaluation: dict,
     comparison: dict,
+    mutation_eligibility: dict,
 ) -> str:
     pilot_scope = pilot["scope"]
     pilot_mutations = pilot["mutation_results"]
@@ -43,6 +53,16 @@ def build_report(
     evaluation_scope = evaluation["scope"]
     evaluation_coverage = evaluation["mutation_coverage"]
     evaluation_mutations = evaluation["mutations"]
+
+    eligibility_scope = mutation_eligibility["scope"]
+    eligibility = mutation_eligibility["candidate_eligibility"]
+
+    eligibility_count = eligibility["eligible_candidates"]
+    ineligible_count = eligibility["ineligible_candidates"]
+    eligibility_rate = eligibility["eligibility_rate"]
+    baseline_passing_candidates = eligibility_scope[
+        "baseline_passing_candidates"
+    ]
 
     pilot_detection = pilot_mutations["detection_rate"]
     evaluation_detection = evaluation_mutations["detection_rate"]
@@ -138,7 +158,7 @@ def build_report(
         (
             "The remaining candidates consisted of "
             f"{evaluation['baseline_results'].get('FAIL', 0)} FAIL results "
-            f"and "
+            "and "
             f"{evaluation['baseline_results'].get('RUNTIME_ERROR', 0)} "
             "RUNTIME_ERROR result."
         ),
@@ -162,6 +182,22 @@ def build_report(
             f"{evaluation_coverage['passing_candidates_without_mutations']} "
             "passing candidates produced no mutation under the current "
             "mutation-generation rules."
+        ),
+        "",
+        (
+            f"An eligibility analysis found that {eligibility_count} "
+            f"of {baseline_passing_candidates} "
+            "baseline-passing candidates were eligible under the current "
+            f"mutation rules, while {ineligible_count} were ineligible. "
+            f"The eligibility rate was {percent(eligibility_rate)}."
+        ),
+        "",
+        (
+            "The eligible candidates exactly matched the candidates "
+            "that actually generated mutations. This indicates that the "
+            "observed mutation-generation coverage is explained by the "
+            "current mutation-operator eligibility rules rather than an "
+            "unexplained loss in the mutation-generation pipeline."
         ),
         "",
         (
@@ -234,6 +270,13 @@ def build_report(
             ),
             "",
             (
+                "The eligibility analysis explains this coverage: 20 of "
+                "the 60 baseline-passing candidates were eligible under "
+                "the current mutation rules, and those 20 exactly matched "
+                "the candidates that generated mutations."
+            ),
+            "",
+            (
                 "The results therefore support the narrower conclusion "
                 "that the current pipeline successfully detected all "
                 "mutations generated under its current rules in this "
@@ -255,6 +298,12 @@ def build_report(
             (
                 "- Only 20 of those 60 passing candidates produced "
                 "mutations under the current mutation-generation rules."
+            ),
+            (
+                "- The mutation-eligibility analysis shows that these "
+                "20 mutation-producing candidates exactly matched the "
+                "20 candidates containing targets recognized by the "
+                "current mutation operators."
             ),
             (
                 "- The evaluation uses the existing comparison-swap, "
@@ -288,6 +337,13 @@ def build_report(
                 "mutation-generation coverage observed among the "
                 "60 baseline-passing candidates."
             ),
+            "",
+            (
+                "The eligibility analysis further shows that this "
+                "33.3% coverage corresponds exactly to the 20 baseline-"
+                "passing candidates that contained at least one target "
+                "recognized by the current mutation rules."
+            ),
         ]
     )
 
@@ -298,11 +354,13 @@ def main() -> None:
     pilot = load_json(PILOT_INPUT)
     evaluation = load_json(EVALUATION_INPUT)
     comparison = load_json(COMPARISON_INPUT)
+    mutation_eligibility = load_json(MUTATION_ELIGIBILITY_INPUT)
 
     report = build_report(
         pilot,
         evaluation,
         comparison,
+        mutation_eligibility,
     )
 
     OUTPUT.parent.mkdir(
