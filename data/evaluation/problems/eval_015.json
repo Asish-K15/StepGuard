@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_015",
+  "source_split": "train",
+  "task_id": 792,
+  "prompt": "Write a python function to count the number of lists in a given number of lists.",
+  "code": "def count_list(input_list): \n    return len(input_list)",
+  "test_imports": [],
+  "test_list": [
+    "assert count_list([[1, 3], [5, 7], [9, 11], [13, 15, 17]]) == 4",
+    "assert count_list([[1,2],[2,3],[4,5]]) == 3",
+    "assert count_list([[1,0],[2,0]]) == 2"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}

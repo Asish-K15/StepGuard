@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_012",
+  "source_split": "train",
+  "task_id": 641,
+  "prompt": "Write a function to find the nth nonagonal number.",
+  "code": "def is_nonagonal(n): \n\treturn int(n * (7 * n - 5) / 2) ",
+  "test_imports": [],
+  "test_list": [
+    "assert is_nonagonal(10) == 325",
+    "assert is_nonagonal(15) == 750",
+    "assert is_nonagonal(18) == 1089"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}

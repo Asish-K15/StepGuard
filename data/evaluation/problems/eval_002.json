@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_002",
+  "source_split": "test",
+  "task_id": 127,
+  "prompt": "Write a function to multiply two integers.",
+  "code": "def multiply_int(x, y):\n    if y < 0:\n        return -multiply_int(x, -y)\n    elif y == 0:\n        return 0\n    elif y == 1:\n        return x\n    else:\n        return x + multiply_int(x, y - 1)",
+  "test_imports": [],
+  "test_list": [
+    "assert multiply_int(10,20)==200",
+    "assert multiply_int(5,10)==50",
+    "assert multiply_int(4,8)==32"
+  ],
+  "source_file": "Mike's Copy of Benchmark Questions Verification V2.ipynb"
+}

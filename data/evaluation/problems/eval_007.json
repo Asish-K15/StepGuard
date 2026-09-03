@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_007",
+  "source_split": "test",
+  "task_id": 392,
+  "prompt": "Write a function to find the maximum sum possible by using the given equation f(n) = max( (f(n/2) + f(n/3) + f(n/4) + f(n/5)), n).",
+  "code": "def get_max_sum (n):\n\tres = list()\n\tres.append(0)\n\tres.append(1)\n\ti = 2\n\twhile i<n + 1:\n\t\tres.append(max(i, (res[int(i / 2)] \n\t\t\t\t\t\t+ res[int(i / 3)] +\n\t\t\t\t\t\t\tres[int(i / 4)]\n\t\t\t\t\t\t+ res[int(i / 5)])))\n\t\ti = i + 1\n\treturn res[n]",
+  "test_imports": [],
+  "test_list": [
+    "assert get_max_sum(60) == 106",
+    "assert get_max_sum(10) == 12",
+    "assert get_max_sum(2) == 2"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}

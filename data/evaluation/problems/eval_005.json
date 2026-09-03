@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_005",
+  "source_split": "test",
+  "task_id": 257,
+  "prompt": "Write a function that takes in two numbers and returns a tuple with the second number and then the first number.",
+  "code": "def swap_numbers(a,b):\n temp = a\n a = b\n b = temp\n return (a,b)",
+  "test_imports": [],
+  "test_list": [
+    "assert swap_numbers(10,20)==(20,10)",
+    "assert swap_numbers(15,17)==(17,15)",
+    "assert swap_numbers(100,200)==(200,100)"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}

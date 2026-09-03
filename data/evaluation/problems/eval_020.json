@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_020",
+  "source_split": "validation",
+  "task_id": 600,
+  "prompt": "Write a python function to check whether the given number is even or not.",
+  "code": "def is_Even(n) : \n    if (n^1 == n+1) :\n        return True; \n    else :\n        return False; ",
+  "test_imports": [],
+  "test_list": [
+    "assert is_Even(1) == False",
+    "assert is_Even(2) == True",
+    "assert is_Even(3) == False"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}

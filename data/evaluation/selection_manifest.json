@@ -1,0 +1,124 @@
+{
+  "project": "StepGuard",
+  "experiment": "larger_evaluation",
+  "selection": {
+    "dataset": "google-research-datasets/mbpp",
+    "config": "sanitized",
+    "seed": 20260903,
+    "pilot_task_ids_excluded": [
+      747,
+      783,
+      790,
+      797,
+      807
+    ],
+    "split_counts": {
+      "train": 7,
+      "test": 9,
+      "validation": 4
+    },
+    "total_problem_count": 20
+  },
+  "problems": [
+    {
+      "problem_id": "eval_001",
+      "task_id": 120,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_002",
+      "task_id": 127,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_003",
+      "task_id": 237,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_004",
+      "task_id": 247,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_005",
+      "task_id": 257,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_006",
+      "task_id": 310,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_007",
+      "task_id": 392,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_008",
+      "task_id": 446,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_009",
+      "task_id": 468,
+      "source_split": "test"
+    },
+    {
+      "problem_id": "eval_010",
+      "task_id": 624,
+      "source_split": "train"
+    },
+    {
+      "problem_id": "eval_011",
+      "task_id": 635,
+      "source_split": "train"
+    },
+    {
+      "problem_id": "eval_012",
+      "task_id": 641,
+      "source_split": "train"
+    },
+    {
+      "problem_id": "eval_013",
+      "task_id": 744,
+      "source_split": "train"
+    },
+    {
+      "problem_id": "eval_014",
+      "task_id": 770,
+      "source_split": "train"
+    },
+    {
+      "problem_id": "eval_015",
+      "task_id": 792,
+      "source_split": "train"
+    },
+    {
+      "problem_id": "eval_016",
+      "task_id": 793,
+      "source_split": "train"
+    },
+    {
+      "problem_id": "eval_017",
+      "task_id": 555,
+      "source_split": "validation"
+    },
+    {
+      "problem_id": "eval_018",
+      "task_id": 574,
+      "source_split": "validation"
+    },
+    {
+      "problem_id": "eval_019",
+      "task_id": 584,
+      "source_split": "validation"
+    },
+    {
+      "problem_id": "eval_020",
+      "task_id": 600,
+      "source_split": "validation"
+    }
+  ]
+}

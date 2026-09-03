@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_010",
+  "source_split": "train",
+  "task_id": 624,
+  "prompt": "Write a python function to convert a given string to uppercase.",
+  "code": "def is_upper(string):\n  return (string.upper())",
+  "test_imports": [],
+  "test_list": [
+    "assert is_upper(\"person\") ==\"PERSON\"",
+    "assert is_upper(\"final\") == \"FINAL\"",
+    "assert is_upper(\"Valid\") == \"VALID\""
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}

@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_017",
+  "source_split": "validation",
+  "task_id": 555,
+  "prompt": "Write a python function to find the difference between the sum of cubes of the first n natural numbers and the sum of the first n natural numbers.",
+  "code": "def difference(n) :  \n    S = (n*(n + 1))//2;  \n    res = S*(S-1);  \n    return res;  ",
+  "test_imports": [],
+  "test_list": [
+    "assert difference(3) == 30",
+    "assert difference(5) == 210",
+    "assert difference(2) == 6"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}

@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_006",
+  "source_split": "test",
+  "task_id": 310,
+  "prompt": "Write a function to convert a given string to a tuple of characters.",
+  "code": "def string_to_tuple(str1):\n    result = tuple(x for x in str1 if not x.isspace()) \n    return result",
+  "test_imports": [],
+  "test_list": [
+    "assert string_to_tuple(\"python 3.0\")==('p', 'y', 't', 'h', 'o', 'n', '3', '.', '0')",
+    "assert string_to_tuple(\"item1\")==('i', 't', 'e', 'm', '1')",
+    "assert string_to_tuple(\"15.10\")==('1', '5', '.', '1', '0')"
+  ],
+  "source_file": "Ellen's Copy of Benchmark Questions Verification V2.ipynb"
+}

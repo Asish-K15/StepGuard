@@ -1,0 +1,14 @@
+{
+  "problem_id": "eval_004",
+  "source_split": "test",
+  "task_id": 247,
+  "prompt": "Write a function to find the length of the longest palindromic subsequence in the given string.",
+  "code": "def lps(str): \n\tn = len(str) \n\tL = [[0 for x in range(n)] for x in range(n)] \n\tfor i in range(n): \n\t\tL[i][i] = 1\n\tfor cl in range(2, n+1): \n\t\tfor i in range(n-cl+1): \n\t\t\tj = i+cl-1\n\t\t\tif str[i] == str[j] and cl == 2: \n\t\t\t\tL[i][j] = 2\n\t\t\telif str[i] == str[j]: \n\t\t\t\tL[i][j] = L[i+1][j-1] + 2\n\t\t\telse: \n\t\t\t\tL[i][j] = max(L[i][j-1], L[i+1][j]); \n\treturn L[0][n-1]",
+  "test_imports": [],
+  "test_list": [
+    "assert lps(\"TENS FOR TENS\") == 5",
+    "assert lps(\"CARDIO FOR CARDS\") == 7",
+    "assert lps(\"PART OF THE JOURNEY IS PART\") == 9"
+  ],
+  "source_file": "Benchmark Questions Verification V2.ipynb"
+}
