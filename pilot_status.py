@@ -95,12 +95,25 @@ def main():
         help="print the concise pilot summary",
     )
     parser.add_argument(
+        "--check",
+        action="store_true",
+        help="validate the pilot and report PASS or FAIL",
+    )
+    parser.add_argument(
         "--summary-json",
         action="store_true",
         help="print the concise pilot summary as JSON",
     )
     args = parser.parse_args()
+    if args.check:
+        result = validate(quiet=True)
 
+        if result.returncode == 0:
+            print("StepGuard pilot check: PASS")
+        else:
+            print("StepGuard pilot check: FAIL")
+
+        raise SystemExit(result.returncode)
     if args.validate:
         result = validate(quiet=args.json or args.summary_json)
 

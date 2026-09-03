@@ -242,3 +242,14 @@ def test_status_validate_summary_json_output():
     assert data["detected"] == 86
     assert data["undetected"] == 13
     assert data["detection_rate"] == 0.8686868686868687
+def test_status_check_output():
+    result = subprocess.run(
+        [sys.executable, str(STATUS), "--check"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == "StepGuard pilot check: PASS"
+    assert result.stderr == ""
