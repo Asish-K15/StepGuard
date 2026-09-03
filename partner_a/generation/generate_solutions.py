@@ -19,6 +19,13 @@ def load_problem(path: Path) -> dict:
         return json.load(f)
 
 
+def get_problem_id(problem: dict) -> str:
+    """Return the identifier used by either pilot or evaluation records."""
+    if "problem_id" in problem:
+        return problem["problem_id"]
+    return problem["pilot_id"]
+
+
 def get_required_function(problem: dict) -> str:
     """Find the top-level function called by the MBPP tests."""
 
@@ -162,7 +169,7 @@ def generate_for_problem(problem: dict, count: int = 3) -> list[dict]:
         temperature = TEMPERATURES[index % len(TEMPERATURES)]
 
         print(
-            f"Generating {problem['pilot_id']} "
+            f"Generating {get_problem_id(problem)} "
             f"candidate {index + 1}/{count} "
             f"(temperature={temperature})..."
         )
@@ -174,11 +181,13 @@ def generate_for_problem(problem: dict, count: int = 3) -> list[dict]:
 
         parse_valid = is_valid_python(code)
 
+        problem_id = get_problem_id(problem)
+
         record = {
-            "problem_id": problem["pilot_id"],
+            "problem_id": problem_id,
             "task_id": problem["task_id"],
             "solution_id": (
-                f"{problem['pilot_id']}_sol_{index + 1:03d}"
+                f"{problem_id}_sol_{index + 1:03d}"
             ),
             "temperature": temperature,
             "required_function": function_name,
@@ -196,15 +205,24 @@ def generate_for_problem(problem: dict, count: int = 3) -> list[dict]:
     return records
 
 
-def main():
-    problem_paths = sorted(PROBLEMS_DIR.glob("mbpp_*.json"))
+def main(
+    problems_dir: Path = PROBLEMS_DIR,
+    output_file: Path = OUTPUT_FILE,
+    candidates_per_problem: int = 5,
+):
+    problem_paths = sorted(problems_dir.glob("mbpp_*.json"))
 
     if not problem_paths:
         raise FileNotFoundError(
-            f"No MBPP problems found in {PROBLEMS_DIR}"
+            f"No MBPP problems found in {problems_dir}"
         )
 
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if candidates_per_problem < 1:
+        raise ValueError(
+            "candidates_per_problem must be at least 1"
+        )
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
     all_records = []
 
@@ -212,50 +230,56 @@ def main():
         problem = load_problem(problem_path)
 
         print(
-            f"\nProcessing {problem['pilot_id']} "
+            f"\nProcessing {get_problem_id(problem)} "
             f"(task {problem['task_id']})"
         )
 
         records = generate_for_problem(
             problem,
-            count=5,
+            count=candidates_per_problem,
         )
 
         all_records.extend(records)
 
-    with OUTPUT_FILE.open("w", encoding="utf-8") as f:
+    with output_file.open("w", encoding="utf-8") as f:
         for record in all_records:
             f.write(
                 json.dumps(record, ensure_ascii=False)
                 + "\n"
             )
 
-    print(
-        f"\nWrote {len(all_records)} candidates "
-        f"to {OUTPUT_FILE}"
+    expected_problem_count = len(problem_paths)
+    expected_candidate_count = (
+        expected_problem_count * candidates_per_problem
     )
 
-    expected_problem_count = 5
-    expected_candidates_per_problem = 5
-
-    assert len(all_records) == expected_problem_count * expected_candidates_per_problem, (
-       f"Expected 25 candidates, found {len(all_records)}"
+    assert len(all_records) == expected_candidate_count, (
+        f"Expected {expected_candidate_count} candidates, "
+        f"found {len(all_records)}"
     )
 
     counts = {}
     for record in all_records:
-      problem_id = record["problem_id"]
-      counts[problem_id] = counts.get(problem_id, 0) + 1
+        problem_id = record["problem_id"]
+        counts[problem_id] = counts.get(problem_id, 0) + 1
 
     assert len(counts) == expected_problem_count, (
-    f"Expected {expected_problem_count} problems, found {len(counts)}"
+        f"Expected {expected_problem_count} problems, "
+        f"found {len(counts)}"
     )
 
     assert all(
-      count == expected_candidates_per_problem
-      for count in counts.values()
-    ), f"Expected 5 candidates per problem, got {counts}"
+        count == candidates_per_problem
+        for count in counts.values()
+    ), (
+        f"Expected {candidates_per_problem} candidates per problem, "
+        f"got {counts}"
+    )
 
-    print("Validated 5 problems x 5 candidates = 25 candidates.")
+    print(
+        f"Validated {expected_problem_count} problems x "
+        f"{candidates_per_problem} candidates = "
+        f"{expected_candidate_count} candidates."
+    )
 if __name__ == "__main__":
     main()
