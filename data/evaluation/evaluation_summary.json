@@ -1,0 +1,110 @@
+{
+  "scope": {
+    "problem_count": 20,
+    "candidate_count": 100,
+    "baseline_pass_count": 60,
+    "baseline_pass_rate": 0.6
+  },
+  "baseline_results": {
+    "FAIL": 39,
+    "PASS": 60,
+    "RUNTIME_ERROR": 1
+  },
+  "mutation_coverage": {
+    "passing_candidate_count": 60,
+    "passing_candidates_with_mutations": 20,
+    "passing_candidates_without_mutations": 40,
+    "coverage_rate": 0.3333333333333333,
+    "problems_with_mutations": 5,
+    "passing_problems": 14
+  },
+  "mutations": {
+    "mutation_record_count": 76,
+    "execution_count": 76,
+    "detected_count": 76,
+    "undetected_count": 0,
+    "detection_rate": 1.0,
+    "execution_results": {
+      "FAIL": 68,
+      "RUNTIME_ERROR": 8
+    },
+    "by_mutation_type": {
+      "boolean_flip": {
+        "mutation_count": 10,
+        "results": {
+          "FAIL": 10
+        },
+        "detected_count": 10,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      },
+      "comparison_swap": {
+        "mutation_count": 44,
+        "results": {
+          "FAIL": 44
+        },
+        "detected_count": 44,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      },
+      "off_by_one": {
+        "mutation_count": 22,
+        "results": {
+          "FAIL": 14,
+          "RUNTIME_ERROR": 8
+        },
+        "detected_count": 22,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      }
+    },
+    "by_problem": {
+      "eval_004": {
+        "mutation_count": 41,
+        "results": {
+          "FAIL": 33,
+          "RUNTIME_ERROR": 8
+        },
+        "detected_count": 41,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      },
+      "eval_007": {
+        "mutation_count": 4,
+        "results": {
+          "FAIL": 4
+        },
+        "detected_count": 4,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      },
+      "eval_016": {
+        "mutation_count": 15,
+        "results": {
+          "FAIL": 15
+        },
+        "detected_count": 15,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      },
+      "eval_017": {
+        "mutation_count": 6,
+        "results": {
+          "FAIL": 6
+        },
+        "detected_count": 6,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      },
+      "eval_020": {
+        "mutation_count": 10,
+        "results": {
+          "FAIL": 10
+        },
+        "detected_count": 10,
+        "undetected_count": 0,
+        "detection_rate": 1.0
+      }
+    }
+  }
+}

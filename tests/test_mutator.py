@@ -136,10 +136,10 @@ def test(x, y):
 """
 
     class Step:
-        problem_id = "test"
-        solution_id = "solution"
-        step_id = "block_01"
-        start_line = 3
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 2
         end_line = 3
 
     result = mutate_comparison(source, Step())
@@ -147,6 +147,32 @@ def test(x, y):
     assert result.changed is True
     assert result.original_operator == operator
     assert result.mutated_operator == expected
+def test_is_comparison_mapping():
+    cases = [
+        ("is", "is not"),
+        ("is not", "is"),
+    ]
+
+    for operator, expected in cases:
+        source = f"""
+def test(x):
+    return x {operator} None
+"""
+
+        class Step:
+            problem_id = "test_problem"
+            solution_id = "test_solution"
+            step_id = "test_step"
+            start_line = 2
+            end_line = 3
+
+        result = mutate_comparison(source, Step())
+
+        assert result.changed is True
+        assert result.original_operator == operator
+        assert result.mutated_operator == expected
+        assert result.mutation_type == "comparison_swap"
+        assert f"return x {expected} None" in result.mutated_code
 def test_boolean_and_to_or():
     source = """
 def test(x, y):

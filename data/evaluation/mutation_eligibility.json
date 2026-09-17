@@ -1,0 +1,861 @@
+{
+  "scope": {
+    "baseline_passing_candidates": 60
+  },
+  "candidate_eligibility": {
+    "eligible_candidates": 20,
+    "ineligible_candidates": 40,
+    "eligibility_rate": 0.3333333333333333
+  },
+  "by_problem": {
+    "eval_001": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 5,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_002": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 5,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_004": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 5,
+      "ineligible_candidate_count": 0,
+      "comparison_target_count": 15,
+      "boolean_target_count": 5,
+      "off_by_one_target_count": 35
+    },
+    "eval_005": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 5,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_007": {
+      "candidate_count": 4,
+      "eligible_candidate_count": 2,
+      "ineligible_candidate_count": 2,
+      "comparison_target_count": 2,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_010": {
+      "candidate_count": 1,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 1,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_011": {
+      "candidate_count": 1,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 1,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_012": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 5,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_013": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 5,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_014": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 5,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_015": {
+      "candidate_count": 4,
+      "eligible_candidate_count": 0,
+      "ineligible_candidate_count": 4,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_016": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 5,
+      "ineligible_candidate_count": 0,
+      "comparison_target_count": 15,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    },
+    "eval_017": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 3,
+      "ineligible_candidate_count": 2,
+      "comparison_target_count": 0,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 3
+    },
+    "eval_020": {
+      "candidate_count": 5,
+      "eligible_candidate_count": 5,
+      "ineligible_candidate_count": 0,
+      "comparison_target_count": 5,
+      "boolean_target_count": 0,
+      "off_by_one_target_count": 0
+    }
+  },
+  "candidates": [
+    {
+      "problem_id": "eval_001",
+      "solution_id": "eval_001_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_001",
+      "solution_id": "eval_001_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_001",
+      "solution_id": "eval_001_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_001",
+      "solution_id": "eval_001_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_001",
+      "solution_id": "eval_001_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_002",
+      "solution_id": "eval_002_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_002",
+      "solution_id": "eval_002_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_002",
+      "solution_id": "eval_002_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_002",
+      "solution_id": "eval_002_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_002",
+      "solution_id": "eval_002_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_004",
+      "solution_id": "eval_004_sol_001",
+      "comparison_targets": 3,
+      "boolean_targets": 1,
+      "off_by_one_targets": 7,
+      "comparison_operators": {
+        "Eq": 3
+      },
+      "boolean_operators": {
+        "And": 1
+      },
+      "off_by_one_contexts": {
+        "range": 2,
+        "subscript": 5
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_004",
+      "solution_id": "eval_004_sol_002",
+      "comparison_targets": 3,
+      "boolean_targets": 1,
+      "off_by_one_targets": 7,
+      "comparison_operators": {
+        "Eq": 3
+      },
+      "boolean_operators": {
+        "And": 1
+      },
+      "off_by_one_contexts": {
+        "range": 2,
+        "subscript": 5
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_004",
+      "solution_id": "eval_004_sol_003",
+      "comparison_targets": 3,
+      "boolean_targets": 1,
+      "off_by_one_targets": 7,
+      "comparison_operators": {
+        "Eq": 3
+      },
+      "boolean_operators": {
+        "And": 1
+      },
+      "off_by_one_contexts": {
+        "range": 2,
+        "subscript": 5
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_004",
+      "solution_id": "eval_004_sol_004",
+      "comparison_targets": 3,
+      "boolean_targets": 1,
+      "off_by_one_targets": 7,
+      "comparison_operators": {
+        "Eq": 3
+      },
+      "boolean_operators": {
+        "And": 1
+      },
+      "off_by_one_contexts": {
+        "range": 2,
+        "subscript": 5
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_004",
+      "solution_id": "eval_004_sol_005",
+      "comparison_targets": 3,
+      "boolean_targets": 1,
+      "off_by_one_targets": 7,
+      "comparison_operators": {
+        "Eq": 3
+      },
+      "boolean_operators": {
+        "And": 1
+      },
+      "off_by_one_contexts": {
+        "range": 2,
+        "subscript": 5
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_005",
+      "solution_id": "eval_005_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_005",
+      "solution_id": "eval_005_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_005",
+      "solution_id": "eval_005_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_005",
+      "solution_id": "eval_005_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_005",
+      "solution_id": "eval_005_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_007",
+      "solution_id": "eval_007_sol_001",
+      "comparison_targets": 1,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "LtE": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_007",
+      "solution_id": "eval_007_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_007",
+      "solution_id": "eval_007_sol_004",
+      "comparison_targets": 1,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_007",
+      "solution_id": "eval_007_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_010",
+      "solution_id": "eval_010_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_011",
+      "solution_id": "eval_011_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_012",
+      "solution_id": "eval_012_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_012",
+      "solution_id": "eval_012_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_012",
+      "solution_id": "eval_012_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_012",
+      "solution_id": "eval_012_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_012",
+      "solution_id": "eval_012_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_013",
+      "solution_id": "eval_013_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_013",
+      "solution_id": "eval_013_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_013",
+      "solution_id": "eval_013_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_013",
+      "solution_id": "eval_013_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_013",
+      "solution_id": "eval_013_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_014",
+      "solution_id": "eval_014_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_014",
+      "solution_id": "eval_014_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_014",
+      "solution_id": "eval_014_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_014",
+      "solution_id": "eval_014_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_014",
+      "solution_id": "eval_014_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_015",
+      "solution_id": "eval_015_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_015",
+      "solution_id": "eval_015_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_015",
+      "solution_id": "eval_015_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_015",
+      "solution_id": "eval_015_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_016",
+      "solution_id": "eval_016_sol_001",
+      "comparison_targets": 3,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1,
+        "Lt": 1,
+        "LtE": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_016",
+      "solution_id": "eval_016_sol_002",
+      "comparison_targets": 3,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1,
+        "Lt": 1,
+        "LtE": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_016",
+      "solution_id": "eval_016_sol_003",
+      "comparison_targets": 3,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1,
+        "Lt": 1,
+        "LtE": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_016",
+      "solution_id": "eval_016_sol_004",
+      "comparison_targets": 3,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1,
+        "Lt": 1,
+        "LtE": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_016",
+      "solution_id": "eval_016_sol_005",
+      "comparison_targets": 3,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1,
+        "Lt": 1,
+        "LtE": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_017",
+      "solution_id": "eval_017_sol_001",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 1,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {
+        "range": 1
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_017",
+      "solution_id": "eval_017_sol_002",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_017",
+      "solution_id": "eval_017_sol_003",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 1,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {
+        "range": 1
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_017",
+      "solution_id": "eval_017_sol_004",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 1,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {
+        "range": 1
+      },
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_017",
+      "solution_id": "eval_017_sol_005",
+      "comparison_targets": 0,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {},
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": false
+    },
+    {
+      "problem_id": "eval_020",
+      "solution_id": "eval_020_sol_001",
+      "comparison_targets": 1,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_020",
+      "solution_id": "eval_020_sol_002",
+      "comparison_targets": 1,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_020",
+      "solution_id": "eval_020_sol_003",
+      "comparison_targets": 1,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_020",
+      "solution_id": "eval_020_sol_004",
+      "comparison_targets": 1,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    },
+    {
+      "problem_id": "eval_020",
+      "solution_id": "eval_020_sol_005",
+      "comparison_targets": 1,
+      "boolean_targets": 0,
+      "off_by_one_targets": 0,
+      "comparison_operators": {
+        "Eq": 1
+      },
+      "boolean_operators": {},
+      "off_by_one_contexts": {},
+      "eligible": true
+    }
+  ]
+}
