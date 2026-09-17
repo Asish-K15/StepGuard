@@ -29,6 +29,8 @@ SUPPORTED_COMPARISONS = {
     ast.LtE,
     ast.Gt,
     ast.GtE,
+    ast.Is,
+    ast.IsNot,
 }
 
 SUPPORTED_BOOLEAN_OPERATORS = {
