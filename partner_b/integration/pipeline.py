@@ -1,19 +1,10 @@
+
 """
 StepGuard Stage 0A - Partner B integration pipeline.
-
-Pipeline:
-    Partner A candidates.jsonl
-        -> function decomposition
-        -> block decomposition
-        -> targeted mutations
-        -> mutation_records.jsonl
-
-Mutation types:
-    B3.1 comparison_swap
-    B3.2 boolean_flip
-    B3.3 off_by_one
+Supports custom input and output paths.
 """
 
+import argparse
 import json
 from pathlib import Path
 
@@ -25,21 +16,13 @@ from partner_b.mutation.mutator import (
     mutate_off_by_one,
 )
 
-
 ROOT = Path(__file__).resolve().parents[2]
 
-CANDIDATES_FILE = (
-    ROOT / "data" / "solutions" / "candidates.jsonl"
-)
-
-OUTPUT_FILE = (
-    ROOT / "data" / "mutations" / "mutation_records.jsonl"
-)
+DEFAULT_CANDIDATES_FILE = ROOT / "data" / "solutions" / "candidates.jsonl"
+DEFAULT_OUTPUT_FILE = ROOT / "data" / "mutations" / "mutation_records.jsonl"
 
 
 def read_jsonl(path: Path) -> list[dict]:
-    """Read JSON Lines file."""
-
     records = []
 
     with path.open("r", encoding="utf-8") as file:
@@ -60,28 +43,14 @@ def read_jsonl(path: Path) -> list[dict]:
 
 
 def write_jsonl(path: Path, records: list[dict]) -> None:
-    """Write records as JSON Lines."""
-
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with path.open("w", encoding="utf-8") as file:
         for record in records:
-            file.write(
-                json.dumps(
-                    record,
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
+            file.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
 def mutation_result_to_record(result) -> dict | None:
-    """
-    Convert MutationResult into the shared JSONL representation.
-
-    Only actual mutations are emitted.
-    """
-
     if not result.changed:
         return None
 
@@ -100,30 +69,15 @@ def mutation_result_to_record(result) -> dict | None:
     }
 
 
-def generate_mutations_for_step(
-    solution_code: str,
-    step,
-) -> list[dict]:
-    """
-    Generate all supported mutation types for one decomposition step.
+def generate_mutations_for_step(solution_code: str, step) -> list[dict]:
+    records = []
 
-    At most one mutation is produced for each mutation type.
-    """
-
-    mutation_functions = (
+    for mutation_function in (
         mutate_comparison,
         mutate_boolean,
         mutate_off_by_one,
-    )
-
-    records = []
-
-    for mutation_function in mutation_functions:
-        result = mutation_function(
-            solution_code,
-            step,
-        )
-
+    ):
+        result = mutation_function(solution_code, step)
         record = mutation_result_to_record(result)
 
         if record is not None:
@@ -133,17 +87,11 @@ def generate_mutations_for_step(
 
 
 def process_candidate(candidate: dict) -> list[dict]:
-    """Decompose and mutate one Partner A candidate."""
-
     problem_id = candidate["problem_id"]
     solution_id = candidate["solution_id"]
     solution_code = candidate["code"]
 
     records = []
-
-    # ---------------------------------------------------------
-    # Function-level decomposition
-    # ---------------------------------------------------------
 
     function_steps = decompose_functions(
         problem_id,
@@ -153,15 +101,8 @@ def process_candidate(candidate: dict) -> list[dict]:
 
     for step in function_steps:
         records.extend(
-            generate_mutations_for_step(
-                solution_code,
-                step,
-            )
+            generate_mutations_for_step(solution_code, step)
         )
-
-    # ---------------------------------------------------------
-    # Block-level decomposition
-    # ---------------------------------------------------------
 
     block_steps = decompose_blocks(
         problem_id,
@@ -171,36 +112,56 @@ def process_candidate(candidate: dict) -> list[dict]:
 
     for step in block_steps:
         records.extend(
-            generate_mutations_for_step(
-                solution_code,
-                step,
-            )
+            generate_mutations_for_step(solution_code, step)
         )
 
     return records
 
 
-def main() -> None:
-    candidates = read_jsonl(CANDIDATES_FILE)
-
+def run_pipeline(
+    candidates_file: Path,
+    output_file: Path,
+) -> int:
+    candidates = read_jsonl(candidates_file)
     all_records = []
 
     for candidate in candidates:
-        candidate_records = process_candidate(candidate)
-        all_records.extend(candidate_records)
+        all_records.extend(process_candidate(candidate))
 
-    write_jsonl(
-        OUTPUT_FILE,
-        all_records,
-    )
+    write_jsonl(output_file, all_records)
 
     print("=" * 60)
     print("StepGuard Partner B Integration")
     print("=" * 60)
     print(f"Candidates processed : {len(candidates)}")
     print(f"Mutation records     : {len(all_records)}")
-    print(f"Output               : {OUTPUT_FILE}")
+    print(f"Output               : {output_file}")
     print("=" * 60)
+
+    return len(all_records)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=DEFAULT_CANDIDATES_FILE,
+    )
+
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT_FILE,
+    )
+
+    args = parser.parse_args()
+
+    run_pipeline(
+        args.input,
+        args.output,
+    )
 
 
 if __name__ == "__main__":
