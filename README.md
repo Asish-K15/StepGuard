@@ -142,6 +142,7 @@ The larger-evaluation evidence is stored under `data/evaluation/`:
 - `data/evaluation/evaluation_summary.json`
 - `data/evaluation/pilot_evaluation_comparison.json`
 - `data/evaluation/evaluation_report.md`
+- `data/evaluation/phase_2_2_synthesis.md`
 
 The selection manifest records the deterministic selection seed, excluded pilot task IDs, split counts, and selected evaluation problems.
 
@@ -151,7 +152,7 @@ From the repository root, run:
 
     python -m pytest -q
 
-The current test suite contains 170 passing tests.
+The current test suite contains 175 passing tests.
 
 Pilot reproducibility can be checked with:
 
