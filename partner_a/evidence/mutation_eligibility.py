@@ -22,15 +22,19 @@ OUTPUT = (
 )
 
 
-SUPPORTED_COMPARISONS = {
+FROZEN_SUPPORTED_COMPARISONS = {
     ast.Eq,
     ast.NotEq,
     ast.Lt,
     ast.LtE,
     ast.Gt,
     ast.GtE,
-    ast.Is,
-    ast.IsNot,
+}
+
+STAGE_1_SUPPORTED_COMPARISONS = {
+    *FROZEN_SUPPORTED_COMPARISONS,
+    ast.In,
+    ast.NotIn,
 }
 
 SUPPORTED_BOOLEAN_OPERATORS = {
@@ -99,7 +103,13 @@ def _is_direct_range_argument(
     return node in parent.args
 
 
-def analyze_code(code: str) -> dict:
+def analyze_code(
+    code: str,
+    supported_comparisons: set[type[ast.cmpop]] | None = None,
+) -> dict:
+    if supported_comparisons is None:
+        supported_comparisons = FROZEN_SUPPORTED_COMPARISONS
+
     tree = ast.parse(code)
     parent_map = _build_parent_map(tree)
 
@@ -114,7 +124,7 @@ def analyze_code(code: str) -> dict:
     for node in ast.walk(tree):
         if isinstance(node, ast.Compare):
             for operator in node.ops:
-                if type(operator) in SUPPORTED_COMPARISONS:
+                if type(operator) in supported_comparisons:
                     comparison_targets += 1
                     comparison_operators[type(operator).__name__] += 1
 

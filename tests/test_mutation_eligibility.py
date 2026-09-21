@@ -1,4 +1,7 @@
+
+
 from partner_a.evidence.mutation_eligibility import (
+    STAGE_1_SUPPORTED_COMPARISONS,
     analyze_code,
     build_eligibility,
 )
@@ -49,6 +52,26 @@ def solve(x, values):
     assert result["off_by_one_targets"] == 0
     assert result["eligible"] is False
 
+def test_analyze_code_can_include_stage_1_membership_targets():
+    code = """
+def solve(x, values):
+    if x in values:
+        return x not in values
+    return x == 1
+"""
+
+    result = analyze_code(
+        code,
+        supported_comparisons=STAGE_1_SUPPORTED_COMPARISONS,
+    )
+
+    assert result["comparison_targets"] == 3
+    assert result["comparison_operators"] == {
+        "Eq": 1,
+        "In": 1,
+        "NotIn": 1,
+    }
+    assert result["eligible"] is True
 
 def test_build_eligibility_uses_only_baseline_passing_candidates():
     baseline = [

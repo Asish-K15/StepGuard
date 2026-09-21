@@ -366,3 +366,31 @@ def f(x):
 
     assert result.changed is False
     assert result.mutated_code == source
+
+
+def test_membership_comparison_mapping():
+    cases = [
+        ("in", "not in"),
+        ("not in", "in"),
+    ]
+
+    for operator, expected in cases:
+        source = f"""
+def test(x, values):
+    return x {operator} values
+"""
+
+        class Step:
+            problem_id = "test_problem"
+            solution_id = "test_solution"
+            step_id = "test_step"
+            start_line = 2
+            end_line = 3
+
+        result = mutate_comparison(source, Step())
+
+        assert result.changed is True
+        assert result.original_operator == operator
+        assert result.mutated_operator == expected
+        assert result.mutation_type == "comparison_swap"
+        assert f"return x {expected} values" in result.mutated_code

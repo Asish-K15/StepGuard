@@ -30,6 +30,8 @@ COMPARISON_MUTATIONS = {
     "<=": ">",
     "is": "is not",
     "is not": "is",
+    "in": "not in",
+    "not in": "in",
 }
 
 BOOLEAN_MUTATIONS = {
@@ -113,6 +115,8 @@ def _operator_text(operator: ast.cmpop) -> Optional[str]:
         ast.GtE: ">=",
         ast.Is: "is",
         ast.IsNot: "is not",
+        ast.In: "in",
+        ast.NotIn: "not in",
     }
 
     for operator_type, text in mapping.items():
