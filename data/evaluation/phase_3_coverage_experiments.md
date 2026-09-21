@@ -49,16 +49,25 @@ A second experiment covered `eval_014`:
 - 0 PASS
 - 5/5 detected
 
-Combined multiplication experiment:
+The remaining multiplication-containing candidates were then tested in
+two additional exploratory runs, covering `eval_012` and `eval_017`:
 
-- 15 mutation executions
-- 10 FAIL
-- 5 RUNTIME_ERROR
+- 17 mutation executions
+- 0 FAIL
+- 17 RUNTIME_ERROR
 - 0 PASS
-- 15/15 detected
+- 17/17 detected
 
-The runtime-error outcomes in the `eval_014` experiment were observed
-mutation outcomes, not evidence of a harness failure.
+Combined across all multiplication experiments:
+
+- 32 mutation executions
+- 10 FAIL
+- 22 RUNTIME_ERROR
+- 0 PASS
+- 32/32 detected
+
+The runtime-error outcomes were observed mutation outcomes, not evidence of
+a harness failure.
 
 ## Controlled `in` / `not in` experiment
 
@@ -95,7 +104,8 @@ The experiment produced:
 - 7/7 detected
 
 All seven mutations changed the intended `**` operator and produced
-assertion-failure outcomes under the existing tests.
+`RUNTIME_ERROR` outcomes, with `AssertionError` appearing in stderr under
+the existing tests.
 
 This is controlled evidence for the tested `Pow` mutation cases and their
 specific candidate test suites; it is not a general claim about power
