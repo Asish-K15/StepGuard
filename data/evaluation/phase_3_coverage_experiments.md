@@ -81,6 +81,26 @@ This is controlled evidence for the tested `in -> not in` case and the
 specific `eval_007` tests; it is not a general claim about membership
 mutation effectiveness.
 
+## Controlled `**` / `*` experiment
+
+A separate exploratory experiment applied `** -> *` to the seven previously
+identified baseline-passing candidates containing the `Pow` operator.
+
+The experiment produced:
+
+- 7 mutation executions
+- 7 RUNTIME_ERROR
+- 0 FAIL
+- 0 PASS
+- 7/7 detected
+
+All seven mutations changed the intended `**` operator and produced
+assertion-failure outcomes under the existing tests.
+
+This is controlled evidence for the tested `Pow` mutation cases and their
+specific candidate test suites; it is not a general claim about power
+mutation effectiveness.
+
 ## Interpretation
 
 These experiments show that additional mutation operators can produce
