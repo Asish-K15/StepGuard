@@ -90,9 +90,19 @@ inventory includes:
 These categories overlap at the candidate level and therefore must not be
 summed.
 
-The multiplication experiment has currently tested 15 of the 22 candidates
-containing multiplication. The remaining multiplication-containing candidates
-were not included in these controlled experiments.
+The multiplication experiments now cover all 22 of the 22 candidates
+containing multiplication.
+
+Across these experiments there are 32 mutation targets:
+
+- 10 FAIL
+- 22 RUNTIME_ERROR
+- 0 PASS
+- 32/32 detected
+
+The 22 candidates therefore have experimental coverage, but these results
+remain limited to the tested `* -> /` operator and the specific candidate
+test suites.
 
 ## Status
 
