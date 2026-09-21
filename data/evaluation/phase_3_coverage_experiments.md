@@ -60,6 +60,27 @@ Combined multiplication experiment:
 The runtime-error outcomes in the `eval_014` experiment were observed
 mutation outcomes, not evidence of a harness failure.
 
+## Controlled `in` / `not in` experiment
+
+A separate exploratory experiment applied `in -> not in` to the two
+previously ineligible `eval_007` candidates containing a membership test.
+
+The experiment produced:
+
+- 2 mutation executions
+- 2 RUNTIME_ERROR
+- 0 FAIL
+- 0 PASS
+- 2/2 detected
+
+Both mutations changed only the intended `in` operator. Both produced
+`KeyError: 60` at `return memo[n]` when the mutated condition prevented the
+memoization branch from handling the requested key.
+
+This is controlled evidence for the tested `in -> not in` case and the
+specific `eval_007` tests; it is not a general claim about membership
+mutation effectiveness.
+
 ## Interpretation
 
 These experiments show that additional mutation operators can produce
