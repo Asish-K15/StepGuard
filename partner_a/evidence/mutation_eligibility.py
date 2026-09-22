@@ -184,6 +184,38 @@ def analyze_code(
     }
 
 
+def analyze_multiplication_targets(code: str) -> dict:
+    """Analyze Stage 1.2 multiplication/division mutation targets."""
+
+    tree = ast.parse(code)
+
+    multiplication_targets = 0
+    multiplication_operators = Counter()
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.BinOp):
+            continue
+
+        if type(node.op) not in {
+            ast.Mult,
+            ast.Div,
+        }:
+            continue
+
+        multiplication_targets += 1
+        multiplication_operators[
+            type(node.op).__name__
+        ] += 1
+
+    return {
+        "multiplication_targets": multiplication_targets,
+        "multiplication_operators": dict(
+            sorted(multiplication_operators.items())
+        ),
+        "eligible": multiplication_targets > 0,
+    }
+
+
 def build_eligibility(baseline: list[dict]) -> dict:
     passing = [
         record

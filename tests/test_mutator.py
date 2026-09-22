@@ -8,6 +8,7 @@ from partner_b.mutation.mutator import (
     mutate_comparison,
     mutate_boolean,
     mutate_off_by_one,
+    mutate_multiplication,
 )
 
 PROBLEMS_DIR = Path("data/problems")
@@ -394,3 +395,92 @@ def test(x, values):
         assert result.mutated_operator == expected
         assert result.mutation_type == "comparison_swap"
         assert f"return x {expected} values" in result.mutated_code
+
+
+@pytest.mark.parametrize(
+    "operator, expected",
+    [
+        ("*", "/"),
+        ("/", "*"),
+    ],
+)
+def test_multiplication_operator_mapping(operator, expected):
+    source = f"""
+def test(x, y):
+    return x {operator} y
+"""
+
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 2
+        end_line = 3
+
+    result = mutate_multiplication(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == operator
+    assert result.mutated_operator == expected
+    assert result.mutation_type == "multiplication_swap"
+    assert f"return x {expected} y" in result.mutated_code
+
+
+def test_multiplication_mutation_is_syntax_valid():
+    source = """
+def test(x, y):
+    return x * y
+"""
+
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "block_01"
+        start_line = 2
+        end_line = 3
+
+    result = mutate_multiplication(source, Step())
+
+    compile(result.mutated_code, "<mutated>", "exec")
+
+
+def test_no_multiplication_returns_unchanged():
+    source = """
+def test(x, y):
+    return x + y
+"""
+
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "block_01"
+        start_line = 2
+        end_line = 3
+
+    result = mutate_multiplication(source, Step())
+
+    assert result.changed is False
+    assert result.mutated_code == source
+
+def test_multiply_mutation_handles_compact_operator_spacing():
+    from partner_b.mutation.mutator import mutate_multiplication
+    from partner_b.integration.pipeline import decompose_functions
+
+    source = """def odd_num_sum(n):
+    return sum((2*i + 1)**4 for i in range(n))
+"""
+
+    step = decompose_functions(
+        "eval_014",
+        "eval_014_sol_001",
+        source,
+    )[0]
+
+    result = mutate_multiplication(source, step)
+
+    assert result.changed is True
+    assert result.original_operator == "*"
+    assert result.mutated_operator == "/"
+    assert result.mutated_code == """def odd_num_sum(n):
+    return sum((2/i + 1)**4 for i in range(n))
+"""

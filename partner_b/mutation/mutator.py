@@ -47,6 +47,11 @@ OFF_BY_ONE_MUTATIONS = {
     "-1": "+1",
 }
 
+MULTIPLICATION_MUTATIONS = {
+    "*": "/",
+    "/": "*",
+}
+
 # ---------------------------------------------------------------------------
 # Result object
 # ---------------------------------------------------------------------------
@@ -315,6 +320,129 @@ def mutate_comparison(
 
 
 # ---------------------------------------------------------------------------
+# Multiplication mutation
+# ---------------------------------------------------------------------------
+
+def _find_multiplication_mutation(
+    solution_code: str,
+    start_line: int,
+    end_line: int,
+):
+    """Find the first multiplication/division operator in the target block."""
+
+    tree = ast.parse(solution_code)
+    offsets = _line_offsets(solution_code)
+
+    candidates = []
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.BinOp):
+            continue
+
+        if not (
+            start_line <= node.lineno
+            and node.end_lineno <= end_line
+        ):
+            continue
+
+        if isinstance(node.op, ast.Mult):
+            original_operator = "*"
+            mutated_operator = "/"
+        elif isinstance(node.op, ast.Div):
+            original_operator = "/"
+            mutated_operator = "*"
+        else:
+            continue
+
+        operator_offset = _find_binary_operator_offset(
+            solution_code,
+            node,
+            original_operator,
+        )
+
+        if operator_offset is None:
+            continue
+
+        candidates.append(
+            (
+                operator_offset,
+                original_operator,
+                mutated_operator,
+                node.lineno,
+            )
+        )
+
+    if not candidates:
+        return None
+
+    return sorted(
+        candidates,
+        key=lambda item: item[0],
+    )[0]
+
+
+def mutate_multiplication(
+    solution_code: str,
+    step,
+) -> MutationResult:
+    """
+    Apply exactly one multiplication/division mutation inside the
+    selected BlockStep.
+    """
+
+    result = _find_multiplication_mutation(
+        solution_code=solution_code,
+        start_line=step.start_line,
+        end_line=step.end_line,
+    )
+
+    if result is None:
+        return MutationResult(
+            problem_id=step.problem_id,
+            solution_id=step.solution_id,
+            step_id=step.step_id,
+            mutation_type="multiplication_swap",
+            original_code=solution_code,
+            mutated_code=solution_code,
+            changed=False,
+        )
+
+    (
+        operator_offset,
+        original_operator,
+        mutated_operator,
+        line,
+    ) = result
+
+    mutated_code = (
+        solution_code[:operator_offset]
+        + mutated_operator
+        + solution_code[
+            operator_offset + len(original_operator):
+        ]
+    )
+
+    ast.parse(mutated_code)
+
+    offsets = _line_offsets(solution_code)
+    column = operator_offset - offsets[line - 1]
+
+    return MutationResult(
+        problem_id=step.problem_id,
+        solution_id=step.solution_id,
+        step_id=step.step_id,
+        mutation_type="multiplication_swap",
+        original_code=solution_code,
+        mutated_code=mutated_code,
+        changed=True,
+        original_operator=original_operator,
+        mutated_operator=mutated_operator,
+        line=line,
+        column=column,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Boolean mutation
 # ---------------------------------------------------------------------------
 
@@ -569,7 +697,7 @@ def _find_binary_operator_offset(
     binop_node: ast.BinOp,
     operator_text: str,
 ):
-    """Find the exact source position of + or -."""
+    """Find the exact source position of a binary operator."""
 
     offsets = _line_offsets(source_code)
 
@@ -591,6 +719,7 @@ def _find_binary_operator_offset(
         f" {operator_text} ",
         f" {operator_text}",
         f"{operator_text} ",
+        operator_text,
     ]
 
     for pattern in patterns:

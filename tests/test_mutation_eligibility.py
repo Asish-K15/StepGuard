@@ -103,3 +103,23 @@ def test_build_eligibility_uses_only_baseline_passing_candidates():
     assert result["candidate_eligibility"]["eligibility_rate"] == 0.5
 
     assert len(result["candidates"]) == 2
+
+def test_stage_1_2_multiplication_targets():
+    from partner_a.evidence.mutation_eligibility import (
+        analyze_multiplication_targets,
+    )
+
+    source = """
+def test(x, y):
+    value = x * y
+    return value / 2
+"""
+
+    result = analyze_multiplication_targets(source)
+
+    assert result["multiplication_targets"] == 2
+    assert result["multiplication_operators"] == {
+        "Div": 1,
+        "Mult": 1,
+    }
+    assert result["eligible"] is True
