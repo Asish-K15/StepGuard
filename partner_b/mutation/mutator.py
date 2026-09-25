@@ -1,18 +1,24 @@
-"""Targeted mutation engine for StepGuard Stage 0A.
+"""Targeted mutation engine for StepGuard.
 
 Current mutation types:
     B3.1 - comparison operator mutation
     B3.2 - boolean mutation
+    B3.3 - off-by-one mutation
+    Stage 1.1 - membership mutation
+    Stage 1.2 - multiplication mutation
+    Stage 1.3 - identity mutation
 
 Design guarantees:
-    - Mutation is restricted to the selected BlockStep.
+    - Mutation is restricted to the selected step (BlockStep or FunctionStep).
     - Only one mutation is applied per result.
     - The resulting Python source must parse successfully.
     - Unchanged blocks return the original source unchanged.
 """
 
 import ast
+import io
 import re
+import tokenize
 from dataclasses import dataclass
 from typing import Optional
 
@@ -28,8 +34,6 @@ COMPARISON_MUTATIONS = {
     ">=": "<",
     ">": "<=",
     "<=": ">",
-    "is": "is not",
-    "is not": "is",
     "in": "not in",
     "not in": "in",
 }
@@ -50,6 +54,11 @@ OFF_BY_ONE_MUTATIONS = {
 MULTIPLICATION_MUTATIONS = {
     "*": "/",
     "/": "*",
+}
+
+IDENTITY_MUTATIONS = {
+    "is": "is not",
+    "is not": "is",
 }
 
 # ---------------------------------------------------------------------------
@@ -118,8 +127,6 @@ def _operator_text(operator: ast.cmpop) -> Optional[str]:
         ast.LtE: "<=",
         ast.Gt: ">",
         ast.GtE: ">=",
-        ast.Is: "is",
-        ast.IsNot: "is not",
         ast.In: "in",
         ast.NotIn: "not in",
     }
@@ -432,6 +439,190 @@ def mutate_multiplication(
         solution_id=step.solution_id,
         step_id=step.step_id,
         mutation_type="multiplication_swap",
+        original_code=solution_code,
+        mutated_code=mutated_code,
+        changed=True,
+        original_operator=original_operator,
+        mutated_operator=mutated_operator,
+        line=line,
+        column=column,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Identity mutation
+# ---------------------------------------------------------------------------
+
+def _locate_identity_token_span(
+    tokens: list[tokenize.TokenInfo],
+    left_bound: tuple[int, int],
+    right_bound: tuple[int, int],
+    is_not: bool,
+) -> Optional[tuple[tuple[int, int], tuple[int, int]]]:
+    """
+    Locate the exact token span of 'is' or 'is not' between left_bound and right_bound.
+
+    Returns ((start_line, start_col), (end_line, end_col)) or None.
+    """
+    relevant = [
+        tok
+        for tok in tokens
+        if tok.start >= left_bound and tok.end <= right_bound
+    ]
+
+    if is_not:
+        for idx, tok in enumerate(relevant):
+            if tok.type == tokenize.NAME and tok.string == "is":
+                for next_tok in relevant[idx + 1:]:
+                    if next_tok.type in (tokenize.NL, tokenize.NEWLINE, tokenize.COMMENT):
+                        continue
+                    if next_tok.type == tokenize.NAME and next_tok.string == "not":
+                        return tok.start, next_tok.end
+                    break
+    else:
+        for idx, tok in enumerate(relevant):
+            if tok.type == tokenize.NAME and tok.string == "is":
+                has_not = False
+                for next_tok in relevant[idx + 1:]:
+                    if next_tok.type in (tokenize.NL, tokenize.NEWLINE, tokenize.COMMENT):
+                        continue
+                    if next_tok.type == tokenize.NAME and next_tok.string == "not":
+                        has_not = True
+                    break
+                if not has_not:
+                    return tok.start, tok.end
+
+    return None
+
+
+def _find_identity_mutation(
+    solution_code: str,
+    start_line: int,
+    end_line: int,
+) -> Optional[tuple[int, int, str, str, int, int]]:
+    """
+    Find the first identity operator ('is' or 'is not') in the target block.
+
+    Uses AST and token-aware targeting (tokenize module) to accurately locate
+    the operator without string-matching collisions on variable names,
+    comments, or string literals.
+
+    Returns:
+        start_offset,
+        end_offset,
+        original_operator,
+        mutated_operator,
+        line,
+        column
+    or None if no supported identity comparison exists.
+    """
+    tree = ast.parse(solution_code)
+    offsets = _line_offsets(solution_code)
+    tokens = list(tokenize.generate_tokens(io.StringIO(solution_code).readline))
+
+    candidates = []
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Compare):
+            continue
+
+        if node.lineno < start_line or node.end_lineno > end_line:
+            continue
+
+        for i, op in enumerate(node.ops):
+            if isinstance(op, ast.Is):
+                original_operator = "is"
+                mutated_operator = "is not"
+                is_not = False
+            elif isinstance(op, ast.IsNot):
+                original_operator = "is not"
+                mutated_operator = "is"
+                is_not = True
+            else:
+                continue
+
+            left = node.left if i == 0 else node.comparators[i - 1]
+            right = node.comparators[i]
+
+            bounds = _locate_identity_token_span(
+                tokens,
+                (left.end_lineno, left.end_col_offset),
+                (right.lineno, right.col_offset),
+                is_not=is_not,
+            )
+
+            if bounds is None:
+                continue
+
+            (s_line, s_col), (e_line, e_col) = bounds
+            start_offset = _absolute_offset(offsets, s_line, s_col)
+            end_offset = _absolute_offset(offsets, e_line, e_col)
+            column = start_offset - offsets[s_line - 1]
+
+            candidates.append(
+                (
+                    start_offset,
+                    end_offset,
+                    original_operator,
+                    mutated_operator,
+                    s_line,
+                    column,
+                )
+            )
+
+    if not candidates:
+        return None
+
+    return sorted(candidates, key=lambda item: item[0])[0]
+
+
+def mutate_identity(
+    solution_code: str,
+    step,
+) -> MutationResult:
+    """
+    Apply exactly one identity mutation ('is <-> is not') inside the
+    selected step using AST/token-aware targeting.
+    """
+    result = _find_identity_mutation(
+        solution_code=solution_code,
+        start_line=step.start_line,
+        end_line=step.end_line,
+    )
+
+    if result is None:
+        return MutationResult(
+            problem_id=step.problem_id,
+            solution_id=step.solution_id,
+            step_id=step.step_id,
+            mutation_type="identity_swap",
+            original_code=solution_code,
+            mutated_code=solution_code,
+            changed=False,
+        )
+
+    (
+        start_offset,
+        end_offset,
+        original_operator,
+        mutated_operator,
+        line,
+        column,
+    ) = result
+
+    mutated_code = (
+        solution_code[:start_offset]
+        + mutated_operator
+        + solution_code[end_offset:]
+    )
+
+    ast.parse(mutated_code)
+
+    return MutationResult(
+        problem_id=step.problem_id,
+        solution_id=step.solution_id,
+        step_id=step.step_id,
+        mutation_type="identity_swap",
         original_code=solution_code,
         mutated_code=mutated_code,
         changed=True,

@@ -24,6 +24,7 @@ from partner_b.mutation.mutator import (
     mutate_boolean,
     mutate_off_by_one,
     mutate_multiplication,
+    mutate_identity,
 )
 
 
@@ -116,6 +117,7 @@ def generate_mutations_for_step(
         mutate_boolean,
         mutate_off_by_one,
         mutate_multiplication,
+        mutate_identity,
     )
 
     records = []
