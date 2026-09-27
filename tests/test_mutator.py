@@ -9,6 +9,7 @@ from partner_b.mutation.mutator import (
     mutate_boolean,
     mutate_off_by_one,
     mutate_multiplication,
+    mutate_identity,
 )
 
 PROBLEMS_DIR = Path("data/problems")
@@ -148,32 +149,23 @@ def test(x, y):
     assert result.changed is True
     assert result.original_operator == operator
     assert result.mutated_operator == expected
-def test_is_comparison_mapping():
-    cases = [
-        ("is", "is not"),
-        ("is not", "is"),
-    ]
-
-    for operator, expected in cases:
-        source = f"""
+def test_comparison_ignores_identity_operators():
+    source = """
 def test(x):
-    return x {operator} None
+    return x is None
 """
 
-        class Step:
-            problem_id = "test_problem"
-            solution_id = "test_solution"
-            step_id = "test_step"
-            start_line = 2
-            end_line = 3
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 2
+        end_line = 3
 
-        result = mutate_comparison(source, Step())
+    result = mutate_comparison(source, Step())
 
-        assert result.changed is True
-        assert result.original_operator == operator
-        assert result.mutated_operator == expected
-        assert result.mutation_type == "comparison_swap"
-        assert f"return x {expected} None" in result.mutated_code
+    assert result.changed is False
+    assert result.mutated_code == source
 def test_boolean_and_to_or():
     source = """
 def test(x, y):
@@ -484,3 +476,158 @@ def test_multiply_mutation_handles_compact_operator_spacing():
     assert result.mutated_code == """def odd_num_sum(n):
     return sum((2/i + 1)**4 for i in range(n))
 """
+
+
+# ---------------------------------------------------------------------------
+# Stage 1.3 identity mutation tests
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    "operator, expected",
+    [
+        ("is", "is not"),
+        ("is not", "is"),
+    ],
+)
+def test_identity_operator_mapping(operator, expected):
+    source = f"""
+def test(x):
+    return x {operator} None
+"""
+
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 2
+        end_line = 3
+
+    result = mutate_identity(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == operator
+    assert result.mutated_operator == expected
+    assert result.mutation_type == "identity_swap"
+    assert f"return x {expected} None" in result.mutated_code
+
+
+def test_no_identity_returns_unchanged():
+    source = """
+def test(x, y):
+    return x == y
+"""
+
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 2
+        end_line = 3
+
+    result = mutate_identity(source, Step())
+
+    assert result.changed is False
+    assert result.mutated_code == source
+    assert result.mutation_type == "identity_swap"
+
+
+def test_identity_mutation_is_syntax_valid():
+    source = """
+def test(x):
+    return x is not None
+"""
+
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 2
+        end_line = 3
+
+    result = mutate_identity(source, Step())
+
+    assert result.changed is True
+    compile(result.mutated_code, "<mutated>", "exec")
+
+
+def test_identity_function_level_mutation():
+    from partner_b.decomposition.function import decompose_functions
+
+    source = """def check_none(tup):
+    return any(item is None for item in tup)
+"""
+    steps = decompose_functions("eval_013", "eval_013_sol_001", source)
+    assert len(steps) >= 1
+
+    result = mutate_identity(source, steps[0])
+
+    assert result.changed is True
+    assert result.original_operator == "is"
+    assert result.mutated_operator == "is not"
+    assert result.mutation_type == "identity_swap"
+    assert "item is not None" in result.mutated_code
+    compile(result.mutated_code, "<mutated>", "exec")
+
+
+def test_identity_block_level_mutation():
+    from partner_b.decomposition.block import decompose_blocks
+
+    source = """def check_none(tup):
+    return any(item is None for item in tup)
+"""
+    steps = decompose_blocks("eval_013", "eval_013_sol_001", source)
+    assert len(steps) >= 1
+
+    result = mutate_identity(source, steps[0])
+
+    assert result.changed is True
+    assert result.original_operator == "is"
+    assert result.mutated_operator == "is not"
+    assert result.mutation_type == "identity_swap"
+    assert "item is not None" in result.mutated_code
+    compile(result.mutated_code, "<mutated>", "exec")
+
+
+def test_identity_token_aware_targeting_ignores_substrings():
+    source = """def is_valid(this_item, distance):
+    # checking if this is None
+    msg = "this is not None"
+    return this_item is None and distance > 0
+"""
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 1
+        end_line = 5
+
+    result = mutate_identity(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "is"
+    assert result.mutated_operator == "is not"
+    assert "def is_valid(this_item, distance):" in result.mutated_code
+    assert '# checking if this is None' in result.mutated_code
+    assert 'msg = "this is not None"' in result.mutated_code
+    assert "return this_item is not None and distance > 0" in result.mutated_code
+    compile(result.mutated_code, "<mutated>", "exec")
+
+
+def test_identity_token_aware_targeting_handles_is_not_spacing():
+    source = """def test_spacing(x):
+    return x is   not None
+"""
+    class Step:
+        problem_id = "test_problem"
+        solution_id = "test_solution"
+        step_id = "test_step"
+        start_line = 1
+        end_line = 3
+
+    result = mutate_identity(source, Step())
+
+    assert result.changed is True
+    assert result.original_operator == "is not"
+    assert result.mutated_operator == "is"
+    assert "return x is None" in result.mutated_code
+    compile(result.mutated_code, "<mutated>", "exec")
