@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 
 
 class DecompositionType(str, Enum):
@@ -28,6 +28,21 @@ class ExecutionResult(str, Enum):
     FAIL = "FAIL"
 
 
+class CoverageStatus(str, Enum):
+    COVERED = "COVERED"
+    PARTIALLY_COVERED = "PARTIALLY_COVERED"
+    UNEXECUTED = "UNEXECUTED"
+
+
+class ExecutionOutcome(str, Enum):
+    PASS = "PASS"
+    ASSERTION_FAILURE = "ASSERTION_FAILURE"
+    RUNTIME_EXCEPTION = "RUNTIME_EXCEPTION"
+    SYNTAX_ERROR = "SYNTAX_ERROR"
+    TIMEOUT = "TIMEOUT"
+    INFRASTRUCTURE_FAILURE = "INFRASTRUCTURE_FAILURE"
+
+
 @dataclass
 class MutationInput:
     problem_id: str
@@ -53,3 +68,28 @@ class Evidence:
     outcome_flip: bool
     error_message: Optional[str] = None
     execution_detail: Optional[str] = None
+
+
+@dataclass
+class StepCoverage:
+    problem_id: str
+    solution_id: str
+    step_id: str
+    decomposition_type: DecompositionType
+    executable_lines: List[int]
+    executed_lines: List[int]
+    coverage_status: CoverageStatus
+    line_coverage_ratio: float
+
+
+@dataclass
+class ExecutionTrace:
+    status: ExecutionOutcome
+    executed_lines: List[int]
+    stdout: str
+    stderr: str
+    returncode: Optional[int]
+    duration_seconds: float
+    exception_type: Optional[str] = None
+    exception_lineno: Optional[int] = None
+
