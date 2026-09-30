@@ -1,0 +1,63 @@
+{
+  "analysis_type": "descriptive_telemetry_distribution",
+  "cross_phase_contracts": {
+    "cross_phase_join_performed": false,
+    "evaluation_disclaimer": "Execution reachability is an observation of the supplied test execution and is not semantic correctness, branch coverage, or a comprehensive test-adequacy assessment.",
+    "phase_1_persisted_traces_available": false,
+    "precomputed_evidence_notice": "Persisted Phase 1.5 evidence reflects precomputed-first execution. 100% statement reachability in baseline records reflects precomputed passing candidates and does not assert dynamic branch coverage.",
+    "process_isolation_notice": "Subprocess execution used in Stage 1.4 tracing provides execution containment and timeout handling; it is not a hardened operating system security sandbox.",
+    "reason_for_no_cross_phase_join": "Phase 1 execution tracer is in-memory only; no persisted trace dataset exists in the closure commit, and Phase 1 schemas lack canonical candidate_id and test_suite_id."
+  },
+  "mutation_metrics": {
+    "detected_mutations_count": 86,
+    "mutation_detection_rate": 0.8687,
+    "mutations_by_outcome": {
+      "FAIL": 67,
+      "PASS": 13,
+      "RUNTIME_ERROR": 19
+    },
+    "mutations_by_type": {
+      "boolean_flip": {
+        "detected": 3,
+        "detection_rate": 0.2727,
+        "total": 11,
+        "undetected": 8
+      },
+      "comparison_swap": {
+        "detected": 69,
+        "detection_rate": 0.9324,
+        "total": 74,
+        "undetected": 5
+      },
+      "off_by_one": {
+        "detected": 14,
+        "detection_rate": 1.0,
+        "total": 14,
+        "undetected": 0
+      }
+    },
+    "total_mutations_executed": 99,
+    "undetected_mutations_count": 13
+  },
+  "phase": "1.6",
+  "problem_distribution": {
+    "mbpp_001": 5,
+    "mbpp_002": 5,
+    "mbpp_003": 5,
+    "mbpp_004": 5,
+    "mbpp_005": 5
+  },
+  "record_granularity": "candidate_level",
+  "stage": "1.4",
+  "step_metrics": {
+    "block_steps_count": 119,
+    "covered_steps_count": 144,
+    "function_steps_count": 25,
+    "overall_line_coverage_ratio": 1.0,
+    "partially_covered_steps_count": 0,
+    "total_steps": 144,
+    "unexecuted_steps_count": 0
+  },
+  "total_candidates_analyzed": 25,
+  "total_problems": 5
+}

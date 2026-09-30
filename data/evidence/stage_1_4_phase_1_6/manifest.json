@@ -1,0 +1,52 @@
+{
+  "commit_base": "66a5d6ddd97c24fdaea7ae47377d98791e764ad5",
+  "created_at": "2026-09-29T10:00:00Z",
+  "data_quality_findings": {
+    "all_candidates_identity_mapped": true,
+    "all_candidates_valid_phase_1_5": true,
+    "no_verdicts_or_rankings_enforced": true,
+    "schema_validation_passed": true,
+    "total_candidates_analyzed": 25
+  },
+  "inputs": [
+    {
+      "format": "jsonl",
+      "path": "data/evidence/stage_1_4_phase_1_5/evidence.jsonl",
+      "record_count": 25,
+      "role": "phase_1_5_candidate_evidence",
+      "sha256": "df487dd20d67bd2a090fc552d5b0270ac1486f8d9b609373c6d95585c8b4be77"
+    },
+    {
+      "format": "json",
+      "path": "data/evidence/stage_1_4_phase_1_5/summary.json",
+      "role": "phase_1_5_summary",
+      "sha256": "af3a305bd856722ce60a3d526d59d248d15fd6925028bdc44cb3d73a5cc4d13b"
+    }
+  ],
+  "manifest_version": "1.0.0",
+  "missing_inputs": {
+    "persisted_phase_1_traces": {
+      "cross_phase_join": "OMITTED",
+      "explanation": "Phase 1 execution tracer is in-memory only; no persisted trace dataset exists in the closure commit.",
+      "status": "UNAVAILABLE"
+    }
+  },
+  "outputs": [
+    {
+      "format": "jsonl",
+      "path": "data/evidence/stage_1_4_phase_1_6/analysis.jsonl",
+      "record_count": 25,
+      "role": "candidate_level_descriptive_analysis",
+      "sha256": "bc518b28d34bc50e873fc8e8052ccf07f528a77e8d6923131de51ae9b5059320"
+    },
+    {
+      "format": "json",
+      "path": "data/evidence/stage_1_4_phase_1_6/summary.json",
+      "role": "aggregate_descriptive_summary",
+      "sha256": "546fefd1c6b3dc360ce03398036f1ac4a2a69e1064c4782b960b1002edaa4dd0"
+    }
+  ],
+  "phase": "1.6",
+  "security_and_containment_notice": "Subprocess execution used in Stage 1.4 tracing provides execution containment and timeout handling; it is not a hardened operating system security sandbox.",
+  "stage": "1.4"
+}
