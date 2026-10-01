@@ -1,0 +1,39 @@
+{
+  "analysis_type": "cross_phase_lineage_and_provenance_audit",
+  "cross_phase_contracts": {
+    "cross_phase_join_performed": false,
+    "data_availability_notice": "Persisted Phase 1 execution traces are unavailable; no cross-phase join performed.",
+    "evaluation_disclaimer": "Execution reachability is an observation of the supplied test execution and is not semantic correctness, branch coverage, or a comprehensive test-adequacy assessment.",
+    "persisted_phase_1_traces_found": false,
+    "phase_1_persisted_traces_available": false,
+    "process_isolation_notice": "Subprocess execution used in Stage 1.4 tracing provides execution containment and timeout handling; it is not a hardened operating system security sandbox.",
+    "reason_for_no_cross_phase_join": "Phase 1 execution tracer is in-memory only; no persisted trace dataset exists in the closure commit."
+  },
+  "phase": "1.7",
+  "phase_relationships": {
+    "legacy_stage_0a": "DESCRIPTIVE_ONLY",
+    "phase_1_5_evidence": "DIRECTLY_LINKED",
+    "phase_1_6_analysis": "DIRECTLY_LINKED",
+    "phase_1_contract": "DESCRIPTIVE_ONLY",
+    "phase_1_persisted_traces": "UNAVAILABLE"
+  },
+  "problem_distribution": {
+    "mbpp_001": 5,
+    "mbpp_002": 5,
+    "mbpp_003": 5,
+    "mbpp_004": 5,
+    "mbpp_005": 5
+  },
+  "record_granularity": "observation_and_relationship_level",
+  "relationship_counts_by_status": {
+    "AMBIGUOUS": 0,
+    "DESCRIPTIVE_ONLY": 51,
+    "DIRECTLY_LINKED": 50,
+    "UNAVAILABLE": 26
+  },
+  "stage": "1.4",
+  "total_candidate_observations": 25,
+  "total_problems": 5,
+  "total_records": 27,
+  "total_relationship_records": 2
+}

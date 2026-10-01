@@ -1,0 +1,62 @@
+{
+  "commit_base": "9cec4fd0d1549da2b0804942468b408af38b9a20",
+  "created_at": "2026-09-30T10:45:00Z",
+  "data_quality_findings": {
+    "all_candidates_identity_mapped": true,
+    "no_ambiguous_identities": true,
+    "no_verdicts_or_rankings_enforced": true,
+    "persisted_phase_1_traces_found": false,
+    "schema_validation_passed": true,
+    "total_candidates_analyzed": 25
+  },
+  "inputs": [
+    {
+      "format": "jsonl",
+      "path": "data/evidence/stage_1_4_phase_1_5/evidence.jsonl",
+      "sha256": "df487dd20d67bd2a090fc552d5b0270ac1486f8d9b609373c6d95585c8b4be77"
+    },
+    {
+      "format": "json",
+      "path": "data/evidence/stage_1_4_phase_1_5/summary.json",
+      "sha256": "af3a305bd856722ce60a3d526d59d248d15fd6925028bdc44cb3d73a5cc4d13b"
+    },
+    {
+      "format": "jsonl",
+      "path": "data/evidence/stage_1_4_phase_1_6/analysis.jsonl",
+      "sha256": "8da93a72bb6f9c10d8c73c082222551c189969ea9c012a39147b11f7a87d1c83"
+    },
+    {
+      "format": "json",
+      "path": "data/evidence/stage_1_4_phase_1_6/manifest.json",
+      "sha256": "21a2dd4264a436b39f3f30f540678dd02f69182d0f3bac5953ff795f80ed07e4"
+    },
+    {
+      "format": "json",
+      "path": "data/evidence/stage_1_4_phase_1_6/summary.json",
+      "sha256": "7d454820c9cefc1e2ae1687e446ea7168a45cb9a5e234f299e285ba0eb077534"
+    }
+  ],
+  "manifest_version": "1.0.0",
+  "missing_inputs": {
+    "persisted_phase_1_traces": {
+      "cross_phase_join": "OMITTED",
+      "explanation": "Phase 1 execution tracer is in-memory only; no persisted trace dataset exists in Git.",
+      "status": "UNAVAILABLE"
+    }
+  },
+  "outputs": [
+    {
+      "format": "jsonl",
+      "path": "data/evidence/stage_1_4_phase_1_7/analysis.jsonl",
+      "sha256": "7f1d5ef3f568fa490df3306da3402321efa4b787a4ae930bc7289134bb09f759"
+    },
+    {
+      "format": "json",
+      "path": "data/evidence/stage_1_4_phase_1_7/summary.json",
+      "sha256": "aff4b87247005f5a9a64fa8d7a86d4b3ce7b3f025f3db97995e88594b775e03b"
+    }
+  ],
+  "phase": "1.7",
+  "security_and_containment_notice": "Subprocess execution used in Stage 1.4 tracing provides execution containment and timeout handling; it is not a hardened operating system security sandbox.",
+  "stage": "1.4"
+}
