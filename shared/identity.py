@@ -25,6 +25,10 @@ VALID_ENTITY_TYPES = {
     "label",
     "prediction",
     "cohort",
+    # Slice 3 extensions:
+    "env",
+    "artifact",
+    "registry",
 }
 
 CANONICAL_URI_PATTERN = re.compile(
@@ -274,3 +278,34 @@ def build_cohort_id(cohort_name: str, version: str) -> str:
         clean_ver = f"v{clean_ver}"
     key = f"{clean_name}::{clean_ver}"
     return build_canonical_id("cohort", key)
+
+
+# ---------------------------------------------------------------------------
+# Slice 3 Canonical ID Builders
+# ---------------------------------------------------------------------------
+
+def build_environment_id(fingerprint_sha256: str) -> str:
+    """Construct canonical environment URI: sg://env/<fingerprint_sha256[:12]>."""
+    clean_sha = fingerprint_sha256.strip().lower()
+    if len(clean_sha) < 12 or not all(c in "0123456789abcdef" for c in clean_sha[:12]):
+        raise ValueError("fingerprint_sha256 must be at least 12 hex characters.")
+    return build_canonical_id("env", clean_sha[:12])
+
+
+def build_artifact_id(relative_path: str, content_sha256: str) -> str:
+    """Construct canonical artifact URI: sg://artifact/<slug>::<content_sha256[:12]>."""
+    clean_path = relative_path.replace("\\", "/").strip("/").strip()
+    clean_slug = clean_path.replace("/", "_")
+    clean_sha = content_sha256.strip().lower()
+    if len(clean_sha) < 12 or not all(c in "0123456789abcdef" for c in clean_sha[:12]):
+        raise ValueError("content_sha256 must be at least 12 hex characters.")
+    return build_canonical_id("artifact", f"{clean_slug}::{clean_sha[:12]}")
+
+
+def build_registry_id(registry_name: str = "authoritative", version: str = "1.0") -> str:
+    """Construct canonical registry URI: sg://registry/<name>::v<version>."""
+    clean_name = registry_name.strip().lower()
+    clean_ver = version.strip().lower()
+    if not clean_ver.startswith("v"):
+        clean_ver = f"v{clean_ver}"
+    return build_canonical_id("registry", f"{clean_name}::{clean_ver}")

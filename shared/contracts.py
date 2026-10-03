@@ -231,3 +231,169 @@ class LabelProvenanceRecord:
             )
         if not self.epistemic_disclaimer:
             raise ValueError("epistemic_disclaimer cannot be empty.")
+
+# ============================================================================
+# Canonical Registry Relative Path (Slice 3)
+# ============================================================================
+CANONICAL_REGISTRY_REL_PATH = "data/registry/authoritative_manifest.json"
+
+
+# ============================================================================
+# F3 Slice 3: Artifact Lifecycle & Authoritative Registry Records
+# ============================================================================
+class ArtifactStatus(str, Enum):
+    """Approved closed taxonomy for artifact lifecycle state in authoritative registry."""
+    FROZEN_BASELINE = "FROZEN_BASELINE"
+    FROZEN_EVALUATION = "FROZEN_EVALUATION"
+    HISTORICAL_PROVENANCE_GAPPED = "HISTORICAL_PROVENANCE_GAPPED"
+    CANONICAL_RELEASE = "CANONICAL_RELEASE"
+    ACTIVE_EXPERIMENTAL = "ACTIVE_EXPERIMENTAL"
+
+
+@dataclass(frozen=True)
+class AuthoritativeArtifactRecord:
+    """Represents a single immutable registered artifact."""
+    canonical_artifact_id: str
+    relative_path: str
+    content_sha256: str
+    size_bytes: int
+    status: ArtifactStatus
+    registered_at_commit: str
+    purpose: str = ""
+    provenance_note: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "canonical_artifact_id": self.canonical_artifact_id,
+            "relative_path": self.relative_path,
+            "content_sha256": self.content_sha256,
+            "size_bytes": self.size_bytes,
+            "status": self.status.value if isinstance(self.status, ArtifactStatus) else str(self.status),
+            "registered_at_commit": self.registered_at_commit,
+            "purpose": self.purpose,
+            "provenance_note": self.provenance_note,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AuthoritativeArtifactRecord":
+        raw_status = data.get("status")
+        if not raw_status:
+            raise ValueError("Artifact record missing required 'status' field.")
+        
+        # Strict validation against approved 5-value closed taxonomy
+        try:
+            status = ArtifactStatus(raw_status)
+        except ValueError:
+            valid_names = [s.value for s in ArtifactStatus]
+            raise ValueError(
+                f"Invalid ArtifactStatus '{raw_status}'. "
+                f"Must be one of closed taxonomy: {valid_names}."
+            )
+
+        return cls(
+            canonical_artifact_id=data["canonical_artifact_id"],
+            relative_path=data["relative_path"],
+            content_sha256=data["content_sha256"],
+            size_bytes=int(data["size_bytes"]),
+            status=status,
+            registered_at_commit=data["registered_at_commit"],
+            purpose=data.get("purpose", ""),
+            provenance_note=data.get("provenance_note"),
+        )
+
+
+@dataclass(frozen=True)
+class ArtifactRegistryManifest:
+    """Represents the authoritative manifest containing all registered artifacts."""
+    registry_id: str
+    schema_version: str
+    created_at: str
+    git_commit_sha: str
+    environment_fingerprint_id: str
+    total_artifacts: int
+    aggregate_merkle_root: str
+    artifacts: Sequence[AuthoritativeArtifactRecord] = field(default_factory=list)
+
+    def calculate_merkle_root(self) -> str:
+        """Calculate Merkle root over 6-field leaf dictionaries using Slice 1 algorithm."""
+        from shared.registry import compute_artifact_merkle_root
+        return compute_artifact_merkle_root(self.artifacts)
+
+    def is_merkle_root_valid(self) -> bool:
+        return self.calculate_merkle_root().lower() == self.aggregate_merkle_root.lower()
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "registry_id": self.registry_id,
+            "schema_version": self.schema_version,
+            "created_at": self.created_at,
+            "git_commit_sha": self.git_commit_sha,
+            "environment_fingerprint_id": self.environment_fingerprint_id,
+            "total_artifacts": self.total_artifacts,
+            "aggregate_merkle_root": self.aggregate_merkle_root,
+            "artifacts": [a.to_dict() for a in self.artifacts],
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ArtifactRegistryManifest":
+        artifacts = [AuthoritativeArtifactRecord.from_dict(a) for a in data.get("artifacts", [])]
+        return cls(
+            registry_id=data["registry_id"],
+            schema_version=data.get("schema_version", "1.0.0"),
+            created_at=data["created_at"],
+            git_commit_sha=data["git_commit_sha"],
+            environment_fingerprint_id=data["environment_fingerprint_id"],
+            total_artifacts=int(data.get("total_artifacts", len(artifacts))),
+            aggregate_merkle_root=data["aggregate_merkle_root"],
+            artifacts=artifacts,
+        )
+
+
+# ============================================================================
+# F3 Slice 3: Environment Fingerprint Records
+# ============================================================================
+@dataclass(frozen=True)
+class EnvironmentFingerprintRecord:
+    """Represents a frozen snapshot of execution platform and core package versions."""
+    schema_version: str
+    python_version: str
+    python_implementation: str
+    platform_system: str
+    platform_machine: str
+    core_dependencies: Dict[str, str]
+    execution_device: str
+    git_commit_sha: str
+    extra_metadata: Dict[str, str]
+    fingerprint_sha256: str
+    environment_id: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "python_version": self.python_version,
+            "python_implementation": self.python_implementation,
+            "platform_system": self.platform_system,
+            "platform_machine": self.platform_machine,
+            "core_dependencies": self.core_dependencies,
+            "execution_device": self.execution_device,
+            "git_commit_sha": self.git_commit_sha,
+            "extra_metadata": self.extra_metadata,
+            "fingerprint_sha256": self.fingerprint_sha256,
+            "environment_id": self.environment_id,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "EnvironmentFingerprintRecord":
+        return cls(
+            schema_version=data.get("schema_version", "1.0.0"),
+            python_version=data["python_version"],
+            python_implementation=data.get("python_implementation", "cpython"),
+            platform_system=data["platform_system"],
+            platform_machine=data["platform_machine"],
+            core_dependencies=dict(data.get("core_dependencies", {})),
+            execution_device=data.get("execution_device", "cpu"),
+            git_commit_sha=data.get("git_commit_sha", "unknown"),
+            extra_metadata=dict(data.get("extra_metadata", {})),
+            fingerprint_sha256=data.get("fingerprint_sha256", data.get("environment_sha256", "")),
+            environment_id=data.get("environment_id", data.get("canonical_environment_id", "")),
+        )

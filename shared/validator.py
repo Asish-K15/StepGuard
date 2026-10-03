@@ -23,12 +23,28 @@ import sys
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple, Union
 
 from shared.contracts import (
+    CANONICAL_REGISTRY_REL_PATH,
+    ArtifactRegistryManifest,
+    ArtifactStatus,
+    AuthoritativeArtifactRecord,
     CanonicalStepRecord,
     CohortManifest,
     CohortMemberRecord,
+    EnvironmentFingerprintRecord,
     LabelProvenanceRecord,
     PartitionPolicy,
     TaxonomyTier,
+)
+from shared.environment import (
+    CORE_DEPENDENCY_PACKAGES,
+    capture_environment_fingerprint,
+    derive_git_commit_sha,
+    verify_environment_parity,
+)
+from shared.registry import (
+    compute_artifact_merkle_root,
+    compute_file_sha256,
+    verify_artifact_registry,
 )
 from shared.identity import (
     CANONICAL_URI_PATTERN,
@@ -115,6 +131,28 @@ class G6ContentIntegrityError(EvidenceContractError):
         super().__init__(message, fault_class="G6", details=details)
 
 
+class G7ProvenanceInfrastructureError(EvidenceContractError):
+    """Raised when environment fingerprinting or artifact registry verification fails."""
+
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(message, fault_class="G7", details=details)
+
+
+class EnvironmentParityError(G7ProvenanceInfrastructureError):
+    """Raised when runtime environment does not match baseline environment fingerprint."""
+    pass
+
+
+class RegistrationConflictError(G7ProvenanceInfrastructureError):
+    """Raised when an artifact has conflicting registrations or duplicate conflicting IDs."""
+    pass
+
+
+class FrozenArtifactTamperError(G7ProvenanceInfrastructureError):
+    """Raised when a frozen artifact on disk has been modified, corrupted, or deleted."""
+    pass
+
+
 FAULT_CLASS_EXCEPTION_MAP = {
     "G1": G1UnregisteredCohortError,
     "G2": G2OrphanEntityError,
@@ -122,6 +160,7 @@ FAULT_CLASS_EXCEPTION_MAP = {
     "G4": G4LabelProvenanceError,
     "G5": G5PartitionLeakageError,
     "G6": G6ContentIntegrityError,
+    "G7": G7ProvenanceInfrastructureError,
 }
 
 
@@ -160,6 +199,8 @@ class ValidationReport:
     summary_by_class: Dict[str, int]
     merkle_roots_verified: List[str]
     registration_status: str  # "VERIFIED_REGISTERED" | "UNVERIFIED_REGISTRATION_PROVENANCE"
+    environment_parity_clean: Optional[bool] = None
+    environment_mismatches: List[str] = field(default_factory=list)
 
     def raise_for_violations(self, fault_class: Optional[str] = None) -> None:
         """Fail-closed: raise the specific EvidenceContractError for the first violation (or matching fault_class)."""
@@ -288,13 +329,15 @@ class EvidenceValidator:
         total_checks: int,
         merkle_roots: List[str],
         registration_status: str,
+        environment_parity_clean: Optional[bool] = None,
+        environment_mismatches: Optional[List[str]] = None,
     ) -> ValidationReport:
         # Deterministic sorting of violations: by fault_class, entity_id, rule_id, message
         sorted_violations = sorted(
             violations,
             key=lambda v: (v.fault_class, v.entity_id, v.rule_id, v.message),
         )
-        summary: Dict[str, int] = {f"G{i}": 0 for i in range(1, 7)}
+        summary: Dict[str, int] = {f"G{i}": 0 for i in range(1, 8)}
         for v in sorted_violations:
             summary[v.fault_class] = summary.get(v.fault_class, 0) + 1
 
@@ -305,6 +348,8 @@ class EvidenceValidator:
             summary_by_class=summary,
             merkle_roots_verified=sorted(list(set(merkle_roots))),
             registration_status=registration_status,
+            environment_parity_clean=environment_parity_clean,
+            environment_mismatches=environment_mismatches or [],
         )
 
     # -----------------------------------------------------------------------
@@ -1116,6 +1161,206 @@ class EvidenceValidator:
         )
 
 
+    # -----------------------------------------------------------------------
+    # Slice 3: Environment & Artifact Registry Validation Methods
+    # -----------------------------------------------------------------------
+
+    def validate_environment(
+        self,
+        current: Union[Dict[str, Any], EnvironmentFingerprintRecord],
+        baseline: Optional[Union[Dict[str, Any], EnvironmentFingerprintRecord]] = None,
+        require_exact_commit: bool = True,
+    ) -> ValidationReport:
+        """Validate Class G7 runtime environment schema conformance and baseline parity."""
+        violations: List[ValidationViolation] = []
+        checks = 0
+
+        c_dict = current.to_dict() if isinstance(current, EnvironmentFingerprintRecord) else current
+        env_id = c_dict.get("environment_id", "sg://env/unknown")
+
+        required_env_fields = [
+            "schema_version",
+            "python_version",
+            "python_implementation",
+            "platform_system",
+            "platform_machine",
+            "core_dependencies",
+            "execution_device",
+            "git_commit_sha",
+            "extra_metadata",
+            "fingerprint_sha256",
+            "environment_id",
+        ]
+        for f in required_env_fields:
+            checks += 1
+            if f not in c_dict:
+                violations.append(
+                    ValidationViolation(
+                        fault_class="G7",
+                        rule_id="RULE_7_1_MISSING_ENVIRONMENT_FINGERPRINT",
+                        entity_id=env_id,
+                        message=f"Missing required environment field '{f}'.",
+                        context={"missing_field": f},
+                    )
+                )
+
+        deps = c_dict.get("core_dependencies", {})
+        if isinstance(deps, dict):
+            for pkg in sorted(CORE_DEPENDENCY_PACKAGES):
+                checks += 1
+                if pkg not in deps:
+                    violations.append(
+                        ValidationViolation(
+                            fault_class="G7",
+                            rule_id="RULE_7_1_MISSING_ENVIRONMENT_FINGERPRINT",
+                            entity_id=env_id,
+                            message=f"Missing required core dependency '{pkg}' in environment fingerprint.",
+                        )
+                    )
+
+        parity_clean: Optional[bool] = None
+        mismatches: List[str] = []
+        if baseline is not None:
+            checks += 1
+            is_clean, mismatches = verify_environment_parity(
+                baseline=baseline,
+                current=current,
+                require_exact_commit=require_exact_commit,
+            )
+            parity_clean = is_clean
+            if not is_clean:
+                for m in mismatches:
+                    violations.append(
+                        ValidationViolation(
+                            fault_class="G7",
+                            rule_id="RULE_7_3_ENVIRONMENT_MISMATCH_DISCLAIMER",
+                            entity_id=env_id,
+                            message=f"Environment parity mismatch: {m}",
+                            context={"mismatch": m},
+                        )
+                    )
+
+        rep = self._build_report(
+            violations=violations,
+            total_checks=checks,
+            merkle_roots=[],
+            registration_status="UNVERIFIED_REGISTRATION_PROVENANCE",
+            environment_parity_clean=parity_clean,
+            environment_mismatches=mismatches,
+        )
+        return rep
+
+    def validate_artifact_registry(
+        self,
+        manifest: Union[Dict[str, Any], ArtifactRegistryManifest],
+        repo_root: Path,
+    ) -> ValidationReport:
+        """Validate Class G7 artifact registry on-disk raw hashes and aggregate Merkle root."""
+        violations: List[ValidationViolation] = []
+        checks = 0
+        merkle_roots: List[str] = []
+
+        m_dict = manifest.to_dict() if isinstance(manifest, ArtifactRegistryManifest) else manifest
+        reg_id = m_dict.get("registry_id", "sg://registry/unknown")
+
+        required_keys = [
+            "registry_id",
+            "schema_version",
+            "created_at",
+            "git_commit_sha",
+            "environment_fingerprint_id",
+            "total_artifacts",
+            "aggregate_merkle_root",
+            "artifacts",
+        ]
+        for k in required_keys:
+            checks += 1
+            if k not in m_dict:
+                violations.append(
+                    ValidationViolation(
+                        fault_class="G7",
+                        rule_id="RULE_7_1_MISSING_ENVIRONMENT_FINGERPRINT",
+                        entity_id=reg_id,
+                        message=f"Missing required registry key '{k}'.",
+                    )
+                )
+
+        # Check for path conflicts / duplicate ID conflicts
+        artifacts = m_dict.get("artifacts", [])
+        seen_paths: Dict[str, str] = {}
+        for a in artifacts:
+            rel = a.get("relative_path", "")
+            sha = a.get("content_sha256", "")
+            if rel in seen_paths and seen_paths[rel] != sha:
+                violations.append(
+                    ValidationViolation(
+                        fault_class="G7",
+                        rule_id="RULE_7_2_TAMPERED_FROZEN_ARTIFACT_REGISTRY",
+                        entity_id=a.get("canonical_artifact_id", f"sg://artifact/{rel}"),
+                        message=f"CONFLICT_PATH: Artifact '{rel}' has conflicting SHA-256 declarations.",
+                        context={"relative_path": rel, "sha1": seen_paths[rel], "sha2": sha},
+                    )
+                )
+            seen_paths[rel] = sha
+
+        checks += 1
+        is_clean, on_disk_violations = verify_artifact_registry(m_dict, repo_root)
+        if not is_clean:
+            for v_str in on_disk_violations:
+                parts = v_str.split(":", 1)
+                kind = parts[0]
+                detail = parts[1] if len(parts) > 1 else ""
+
+                if kind == "MISSING_ARTIFACT":
+                    violations.append(
+                        ValidationViolation(
+                            fault_class="G7",
+                            rule_id="RULE_7_2_TAMPERED_FROZEN_ARTIFACT_REGISTRY",
+                            entity_id=f"sg://artifact/{detail}",
+                            message=f"Registered artifact missing on disk: '{detail}'.",
+                        )
+                    )
+                elif kind == "RECORD_HASH_MISMATCH":
+                    violations.append(
+                        ValidationViolation(
+                            fault_class="G7",
+                            rule_id="RULE_7_2_TAMPERED_FROZEN_ARTIFACT_REGISTRY",
+                            entity_id=f"sg://artifact/{detail}",
+                            message=f"RECORD_HASH_MISMATCH:{detail}",
+                        )
+                    )
+                elif kind == "REGISTRY_MERKLE_ROOT_MISMATCH":
+                    violations.append(
+                        ValidationViolation(
+                            fault_class="G6",
+                            rule_id="RULE_6_2_MERKLE_ROOT_MISMATCH",
+                            entity_id=reg_id,
+                            message=f"Registry Merkle root mismatch: {detail}",
+                        )
+                    )
+                else:
+                    violations.append(
+                        ValidationViolation(
+                            fault_class="G7",
+                            rule_id="RULE_7_2_TAMPERED_FROZEN_ARTIFACT_REGISTRY",
+                            entity_id=reg_id,
+                            message=f"Registry verification violation: {v_str}",
+                        )
+                    )
+
+        reg_merkle = m_dict.get("aggregate_merkle_root")
+        if reg_merkle:
+            merkle_roots.append(reg_merkle)
+
+        rep = self._build_report(
+            violations=violations,
+            total_checks=checks,
+            merkle_roots=merkle_roots,
+            registration_status="UNVERIFIED_REGISTRATION_PROVENANCE",
+        )
+        return rep
+
+
 # ---------------------------------------------------------------------------
 # CLI Entry Point
 # ---------------------------------------------------------------------------
@@ -1155,6 +1400,10 @@ def main(args: Optional[List[str]] = None) -> int:
     parser.add_argument("--candidates", type=str, help="Path to candidates JSON/JSONL")
     parser.add_argument("--candidate-mapping", type=str, help="Path to legacy candidate mapping JSON")
     parser.add_argument("--trusted-registry", type=str, help="Path to trusted manifest registry JSON")
+    parser.add_argument("--verify-environment", action="store_true", help="Capture and verify runtime environment fingerprint")
+    parser.add_argument("--baseline-environment", type=str, help="Path to baseline environment fingerprint JSON")
+    parser.add_argument("--check-registry", nargs="?", const=CANONICAL_REGISTRY_REL_PATH, type=str, help="Path to artifact registry manifest JSON (defaults to canonical path)")
+    parser.add_argument("--repo-root", type=str, default=".", help="Root directory for artifact registry path resolution")
     parser.add_argument("--report-out", type=str, help="Path to write validation report JSON")
     parser.add_argument("--quiet", action="store_true", help="Suppress console report summary")
 
@@ -1236,6 +1485,47 @@ def main(args: Optional[List[str]] = None) -> int:
     except Exception as e:
         sys.stderr.write(f"Error loading lineage files: {e}\n")
         return 2
+
+    # Slice 3 CLI Options: Environment & Registry
+    if cli_args.verify_environment or cli_args.baseline_environment:
+        root_dir = Path(cli_args.repo_root) if cli_args.repo_root else Path(".")
+        current_env = capture_environment_fingerprint(repo_root=root_dir)
+        baseline_env: Optional[Dict[str, Any]] = None
+        if cli_args.baseline_environment:
+            try:
+                b_path = Path(cli_args.baseline_environment)
+                baseline_env = json.loads(b_path.read_text(encoding="utf-8"))
+            except Exception as e:
+                sys.stderr.write(f"Error loading baseline environment: {e}\n")
+                return 2
+        
+        env_rep = validator.validate_environment(current_env, baseline=baseline_env, require_exact_commit=True)
+        combined_violations.extend(env_rep.violations)
+        total_checks += env_rep.total_checks
+        if not cli_args.quiet:
+            parity_str = "PASSED" if env_rep.is_valid else "FAILED"
+            print(f"--- ENVIRONMENT PARITY VERIFICATION [{parity_str}] ---")
+            if env_rep.environment_mismatches:
+                for mm in env_rep.environment_mismatches:
+                    print(f"  [MISMATCH] {mm}")
+
+    if cli_args.check_registry:
+        try:
+            reg_repo_root = Path(cli_args.repo_root) if cli_args.repo_root else Path(".")
+            r_path = Path(cli_args.check_registry)
+            if not r_path.is_absolute():
+                r_path = reg_repo_root / r_path
+            reg_manifest = json.loads(r_path.read_text(encoding="utf-8"))
+            reg_rep = validator.validate_artifact_registry(reg_manifest, repo_root=reg_repo_root)
+            combined_violations.extend(reg_rep.violations)
+            total_checks += reg_rep.total_checks
+            merkle_roots.extend(reg_rep.merkle_roots_verified)
+            if not cli_args.quiet:
+                reg_str = "PASSED" if reg_rep.is_valid else "FAILED"
+                print(f"--- ARTIFACT REGISTRY INTEGRITY VERIFICATION [{reg_str}] ---")
+        except Exception as e:
+            sys.stderr.write(f"Error verifying artifact registry: {e}\n")
+            return 2
 
     final_report = validator._build_report(
         combined_violations,
