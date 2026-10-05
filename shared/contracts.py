@@ -397,3 +397,190 @@ class EnvironmentFingerprintRecord:
             fingerprint_sha256=data.get("fingerprint_sha256", data.get("environment_sha256", "")),
             environment_id=data.get("environment_id", data.get("canonical_environment_id", "")),
         )
+
+
+# ============================================================================
+# F3 Slice 4: End-to-End Provenance Bundle Contracts
+# ============================================================================
+@dataclass(frozen=True)
+class LineageVerificationSummary:
+    """Canonical structural summary of multi-phase execution lineage and referential integrity."""
+    total_candidates: int
+    total_steps: int
+    total_mutations: int
+    total_traces: int
+    total_labels: int
+    total_predictions: int
+    candidate_step_edges: int
+    step_mutation_edges: int
+    mutation_trace_edges: int
+    step_label_edges: int
+    step_prediction_edges: int
+    has_cycles: bool
+    traversal_completed: bool
+    max_traversal_depth: int
+    cycle_details: List[str] = field(default_factory=list)
+
+    def to_canonical_dict(self) -> Dict[str, Any]:
+        return {
+            "candidate_step_edges": self.candidate_step_edges,
+            "cycle_details": sorted(self.cycle_details),
+            "has_cycles": self.has_cycles,
+            "max_traversal_depth": self.max_traversal_depth,
+            "mutation_trace_edges": self.mutation_trace_edges,
+            "step_label_edges": self.step_label_edges,
+            "step_mutation_edges": self.step_mutation_edges,
+            "step_prediction_edges": self.step_prediction_edges,
+            "total_candidates": self.total_candidates,
+            "total_labels": self.total_labels,
+            "total_mutations": self.total_mutations,
+            "total_predictions": self.total_predictions,
+            "total_steps": self.total_steps,
+            "total_traces": self.total_traces,
+            "traversal_completed": self.traversal_completed,
+        }
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.to_canonical_dict()
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "LineageVerificationSummary":
+        return cls(
+            total_candidates=int(data["total_candidates"]),
+            total_steps=int(data["total_steps"]),
+            total_mutations=int(data["total_mutations"]),
+            total_traces=int(data["total_traces"]),
+            total_labels=int(data["total_labels"]),
+            total_predictions=int(data["total_predictions"]),
+            candidate_step_edges=int(data["candidate_step_edges"]),
+            step_mutation_edges=int(data["step_mutation_edges"]),
+            mutation_trace_edges=int(data["mutation_trace_edges"]),
+            step_label_edges=int(data["step_label_edges"]),
+            step_prediction_edges=int(data["step_prediction_edges"]),
+            has_cycles=bool(data["has_cycles"]),
+            traversal_completed=bool(data["traversal_completed"]),
+            max_traversal_depth=int(data["max_traversal_depth"]),
+            cycle_details=list(data.get("cycle_details", [])),
+        )
+
+
+@dataclass
+class BundleVerificationReport:
+    """Consolidated end-to-end audit report for a ProvenanceBundleManifest."""
+    is_valid: bool
+    total_checks: int
+    violations: List[Any]
+    summary_by_class: Dict[str, int]
+    environment_verified: bool
+    environment_mismatches: List[str]
+    registry_verified: bool
+    registry_violations: List[str]
+    artifacts_verified_count: int
+    unregistered_artifact_count: int
+    lineage_verified: bool
+    lineage_summary: Optional[Dict[str, Any]]
+    bundle_hash_verified: bool
+    computed_bundle_hash: str
+    declared_bundle_hash: str
+    historical_artifacts_count: int
+    historical_provenance_gapped: bool
+    merkle_roots_verified: List[str] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "is_valid": self.is_valid,
+            "total_checks": self.total_checks,
+            "violations": [
+                v.to_dict() if hasattr(v, "to_dict") else dict(v) if isinstance(v, dict) else {
+                    "fault_class": getattr(v, "fault_class", "G8"),
+                    "rule_id": getattr(v, "rule_id", ""),
+                    "entity_id": getattr(v, "entity_id", ""),
+                    "message": getattr(v, "message", ""),
+                    "context": getattr(v, "context", {}),
+                }
+                for v in self.violations
+            ],
+            "summary_by_class": self.summary_by_class,
+            "environment_verified": self.environment_verified,
+            "environment_mismatches": sorted(self.environment_mismatches),
+            "registry_verified": self.registry_verified,
+            "registry_violations": sorted(self.registry_violations),
+            "artifacts_verified_count": self.artifacts_verified_count,
+            "unregistered_artifact_count": self.unregistered_artifact_count,
+            "lineage_verified": self.lineage_verified,
+            "lineage_summary": self.lineage_summary,
+            "bundle_hash_verified": self.bundle_hash_verified,
+            "computed_bundle_hash": self.computed_bundle_hash,
+            "declared_bundle_hash": self.declared_bundle_hash,
+            "historical_artifacts_count": self.historical_artifacts_count,
+            "historical_provenance_gapped": self.historical_provenance_gapped,
+            "merkle_roots_verified": sorted(list(set(self.merkle_roots_verified))),
+        }
+
+
+@dataclass(frozen=True)
+class ProvenanceBundleManifest:
+    """Authoritative top-level manifest binding all StepGuard provenance layers into a sealed bundle."""
+    bundle_id: str
+    schema_version: str
+    git_commit_sha: str
+    environment_fingerprint_id: str
+    environment_record: Dict[str, Any]
+    registry_manifest_id: str
+    registry_merkle_root: str
+    cohort_manifest_ids: List[str]
+    cohort_merkle_roots: List[str]
+    lineage_summary: Dict[str, Any]
+    created_at: str
+    aggregate_bundle_hash: str
+
+    def calculate_bundle_hash(self) -> str:
+        from shared.bundle import compute_aggregate_bundle_hash
+        return compute_aggregate_bundle_hash(self)
+
+    def is_bundle_hash_valid(self) -> bool:
+        return self.calculate_bundle_hash().lower() == self.aggregate_bundle_hash.lower()
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "bundle_id": self.bundle_id,
+            "schema_version": self.schema_version,
+            "created_at": self.created_at,
+            "git_commit_sha": self.git_commit_sha,
+            "environment_fingerprint_id": self.environment_fingerprint_id,
+            "environment_record": self.environment_record,
+            "registry_manifest_id": self.registry_manifest_id,
+            "registry_merkle_root": self.registry_merkle_root,
+            "cohort_manifest_ids": sorted(self.cohort_manifest_ids),
+            "cohort_merkle_roots": sorted(self.cohort_merkle_roots),
+            "lineage_summary": self.lineage_summary,
+            "aggregate_bundle_hash": self.aggregate_bundle_hash,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProvenanceBundleManifest":
+        schema_ver = data.get("schema_version", "1.0.0")
+        if schema_ver != "1.0.0":
+            from shared.validator import G8BundleSchemaMismatch
+            raise G8BundleSchemaMismatch(
+                f"Unsupported bundle schema_version '{schema_ver}'. Must be '1.0.0'."
+            )
+        
+        bundle_id = data.get("bundle_id", "")
+        if not is_valid_canonical_id(bundle_id, "bundle"):
+            raise ValueError(f"Invalid bundle_id URI '{bundle_id}'. Must match sg://bundle/...")
+
+        return cls(
+            bundle_id=bundle_id,
+            schema_version=schema_ver,
+            git_commit_sha=data.get("git_commit_sha", "unknown"),
+            environment_fingerprint_id=data["environment_fingerprint_id"],
+            environment_record=dict(data.get("environment_record", {})),
+            registry_manifest_id=data["registry_manifest_id"],
+            registry_merkle_root=data["registry_merkle_root"],
+            cohort_manifest_ids=sorted(list(data.get("cohort_manifest_ids", []))),
+            cohort_merkle_roots=sorted(list(data.get("cohort_merkle_roots", []))),
+            lineage_summary=dict(data.get("lineage_summary", {})),
+            created_at=data["created_at"],
+            aggregate_bundle_hash=data["aggregate_bundle_hash"],
+        )

@@ -29,6 +29,8 @@ VALID_ENTITY_TYPES = {
     "env",
     "artifact",
     "registry",
+    # Slice 4 extension:
+    "bundle",
 }
 
 CANONICAL_URI_PATTERN = re.compile(
@@ -309,3 +311,16 @@ def build_registry_id(registry_name: str = "authoritative", version: str = "1.0"
     if not clean_ver.startswith("v"):
         clean_ver = f"v{clean_ver}"
     return build_canonical_id("registry", f"{clean_name}::{clean_ver}")
+
+
+def build_bundle_id(bundle_name_or_sha: str, version: Optional[str] = None) -> str:
+    """Construct canonical bundle URI: sg://bundle/<name>::v<version> or sg://bundle/<sha12>."""
+    clean_val = bundle_name_or_sha.strip().lower()
+    if version:
+        clean_ver = version.strip().lower()
+        if not clean_ver.startswith("v"):
+            clean_ver = f"v{clean_ver}"
+        key = f"{clean_val}::{clean_ver}"
+    else:
+        key = clean_val
+    return build_canonical_id("bundle", key)

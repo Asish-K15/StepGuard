@@ -27,6 +27,9 @@ from shared.contracts import (
     ArtifactRegistryManifest,
     ArtifactStatus,
     AuthoritativeArtifactRecord,
+    BundleVerificationReport,
+    LineageVerificationSummary,
+    ProvenanceBundleManifest,
     CanonicalStepRecord,
     CohortManifest,
     CohortMemberRecord,
@@ -153,6 +156,47 @@ class FrozenArtifactTamperError(G7ProvenanceInfrastructureError):
     pass
 
 
+class G8CompositeProvenanceError(EvidenceContractError):
+    """Base exception for all Slice 4 composite provenance and bundle-level violations."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(message, fault_class="G8", details=details)
+
+
+class G8BundleSchemaMismatch(G8CompositeProvenanceError):
+    """Raised when bundle manifest fails schema version or structural field validation."""
+    pass
+
+
+class G8EnvironmentMismatch(G8CompositeProvenanceError):
+    """Raised when bundle execution environment deviates from pinned environment record."""
+    pass
+
+
+class G8RegistryIntegrityFailure(G8CompositeProvenanceError):
+    """Raised when authoritative registry manifest or registered files fail Merkle verification."""
+    pass
+
+
+class G8UnregisteredArtifactViolation(G8CompositeProvenanceError):
+    """Raised when an artifact referenced in lineage is absent from authoritative registry."""
+    pass
+
+
+class G8LineageCycleDetected(G8CompositeProvenanceError):
+    """Raised when the execution lineage graph contains circular dependencies."""
+    pass
+
+
+class G8BundleHashMismatch(G8CompositeProvenanceError):
+    """Raised when the computed 10-field bundle hash does not match aggregate_bundle_hash."""
+    pass
+
+
+class G8LineageTraversalDepthExceeded(G8CompositeProvenanceError):
+    """Raised when lineage graph path traversal exceeds the maximum permitted depth budget of 10."""
+    pass
+
+
 FAULT_CLASS_EXCEPTION_MAP = {
     "G1": G1UnregisteredCohortError,
     "G2": G2OrphanEntityError,
@@ -161,6 +205,7 @@ FAULT_CLASS_EXCEPTION_MAP = {
     "G5": G5PartitionLeakageError,
     "G6": G6ContentIntegrityError,
     "G7": G7ProvenanceInfrastructureError,
+    "G8": G8CompositeProvenanceError,
 }
 
 
@@ -337,7 +382,7 @@ class EvidenceValidator:
             violations,
             key=lambda v: (v.fault_class, v.entity_id, v.rule_id, v.message),
         )
-        summary: Dict[str, int] = {f"G{i}": 0 for i in range(1, 8)}
+        summary: Dict[str, int] = {f"G{i}": 0 for i in range(1, 9)}
         for v in sorted_violations:
             summary[v.fault_class] = summary.get(v.fault_class, 0) + 1
 
@@ -1402,6 +1447,7 @@ def main(args: Optional[List[str]] = None) -> int:
     parser.add_argument("--trusted-registry", type=str, help="Path to trusted manifest registry JSON")
     parser.add_argument("--verify-environment", action="store_true", help="Capture and verify runtime environment fingerprint")
     parser.add_argument("--baseline-environment", type=str, help="Path to baseline environment fingerprint JSON")
+    parser.add_argument("--verify-bundle", type=str, help="Path to provenance bundle manifest JSON")
     parser.add_argument("--check-registry", nargs="?", const=CANONICAL_REGISTRY_REL_PATH, type=str, help="Path to artifact registry manifest JSON (defaults to canonical path)")
     parser.add_argument("--repo-root", type=str, default=".", help="Root directory for artifact registry path resolution")
     parser.add_argument("--report-out", type=str, help="Path to write validation report JSON")
@@ -1446,6 +1492,48 @@ def main(args: Optional[List[str]] = None) -> int:
     registration_status = "UNVERIFIED_REGISTRATION_PROVENANCE"
 
     manifest_obj: Optional[Dict[str, Any]] = None
+
+    if cli_args.verify_bundle:
+        try:
+            b_path = Path(cli_args.verify_bundle)
+            if not b_path.is_absolute():
+                b_path = (Path(cli_args.repo_root) if cli_args.repo_root else Path(".")) / b_path
+            bundle_dict = json.loads(b_path.read_text(encoding="utf-8"))
+            bundle_manifest = ProvenanceBundleManifest.from_dict(bundle_dict)
+            from shared.bundle import verify_provenance_bundle
+            bundle_rep = verify_provenance_bundle(
+                bundle=bundle_manifest,
+                repo_root=Path(cli_args.repo_root) if cli_args.repo_root else Path("."),
+                enforce_environment=cli_args.verify_environment or bool(cli_args.baseline_environment),
+            )
+            if cli_args.report_out:
+                out_p = Path(cli_args.report_out)
+                out_p.parent.mkdir(parents=True, exist_ok=True)
+                out_p.write_text(json.dumps(bundle_rep.to_dict(), indent=2), encoding="utf-8")
+
+            if not cli_args.quiet:
+                status_str = "PASSED" if bundle_rep.is_valid else "FAILED"
+                print(f"--- PROVENANCE BUNDLE VERIFICATION [{status_str}] ---")
+                print(f"Bundle ID: {bundle_manifest.bundle_id}")
+                print(f"Environment Verified: {bundle_rep.environment_verified}")
+                print(f"Registry Verified: {bundle_rep.registry_verified}")
+                print(f"Artifacts Verified: {bundle_rep.artifacts_verified_count}")
+                print(f"Lineage Verified: {bundle_rep.lineage_verified}")
+                print(f"Bundle Hash Verified: {bundle_rep.bundle_hash_verified}")
+                print(f"Historical Artifacts: {bundle_rep.historical_artifacts_count} (Gapped: {bundle_rep.historical_provenance_gapped})")
+                print(f"Total Violations: {len(bundle_rep.violations)}")
+                if bundle_rep.violations:
+                    for v in bundle_rep.violations:
+                        v_cls = getattr(v, 'fault_class', 'G8')
+                        v_rid = getattr(v, 'rule_id', '')
+                        v_msg = getattr(v, 'message', '')
+                        print(f"  [{v_cls}:{v_rid}] {v_msg}")
+
+            return 0 if bundle_rep.is_valid else 1
+        except Exception as e:
+            sys.stderr.write(f"Error verifying provenance bundle: {e}\n")
+            return 2
+
     if cli_args.manifest:
         try:
             m_path = Path(cli_args.manifest)
