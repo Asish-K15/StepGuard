@@ -1,0 +1,51 @@
+{
+  "dataset_name": "StepGuard Verifier Labeled Dataset",
+  "stage": "Stage 1.3",
+  "target_met": true,
+  "total_canonical_steps": 156,
+  "target_step_count": 150,
+  "collapsed_duplicates": 51,
+  "raw_evidence_records": 257,
+  "label_distribution": {
+    "correct": 101,
+    "uncertain": 55
+  },
+  "dataset_source_distribution": {
+    "evaluation": 94,
+    "pilot": 62
+  },
+  "split_summary": {
+    "train_ratio": 0.8,
+    "seed": 42,
+    "train_steps": 119,
+    "eval_steps": 37,
+    "train_step_pct": 76.28,
+    "eval_step_pct": 23.72,
+    "total_solutions": 74,
+    "train_solutions": 59,
+    "eval_solutions": 15,
+    "solution_leakage": 0
+  },
+  "train_label_distribution": {
+    "correct": 81,
+    "uncertain": 38
+  },
+  "eval_label_distribution": {
+    "correct": 20,
+    "uncertain": 17
+  },
+  "mutation_family_distribution": {
+    "multiplication_swap": 40,
+    "boolean_flip": 20,
+    "comparison_swap": 100,
+    "off_by_one": 35,
+    "identity_swap": 5
+  },
+  "artifacts": {
+    "all_labels": "data\\evaluation\\stage_1\\verifier_labels.jsonl",
+    "train_split": "data\\evaluation\\stage_1\\verifier_train.jsonl",
+    "eval_split": "data\\evaluation\\stage_1\\verifier_eval.jsonl",
+    "summary_json": "data\\evaluation\\stage_1\\verifier_label_summary.json",
+    "report_md": "data\\evaluation\\stage_1\\verifier_label_derivation.md"
+  }
+}

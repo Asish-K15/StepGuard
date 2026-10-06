@@ -1,0 +1,11 @@
+{
+  "model_type": "StepGuardPRMNet",
+  "in_features": 73,
+  "hidden_dim": 32,
+  "dropout": 0.2,
+  "max_tfidf_features": 48,
+  "include_prompt": true,
+  "training_epochs": 80,
+  "final_train_loss": 0.0007,
+  "final_train_acc": 1.0
+}

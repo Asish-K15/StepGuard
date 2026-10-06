@@ -1,4 +1,4 @@
-import ast
+﻿import ast
 import json
 from collections import Counter
 from pathlib import Path
@@ -35,6 +35,12 @@ STAGE_1_SUPPORTED_COMPARISONS = {
     *FROZEN_SUPPORTED_COMPARISONS,
     ast.In,
     ast.NotIn,
+}
+
+STAGE_1_3_SUPPORTED_COMPARISONS = {
+    *STAGE_1_SUPPORTED_COMPARISONS,
+    ast.Is,
+    ast.IsNot,
 }
 
 SUPPORTED_BOOLEAN_OPERATORS = {
@@ -183,6 +189,36 @@ def analyze_code(
         ),
     }
 
+
+def analyze_identity_targets(code: str) -> dict:
+    """Analyze Stage 1.3 identity-comparison mutation targets."""
+
+    tree = ast.parse(code)
+
+    identity_targets = 0
+    identity_operators = Counter()
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Compare):
+            continue
+
+        for operator in node.ops:
+            if type(operator) not in {
+                ast.Is,
+                ast.IsNot,
+            }:
+                continue
+
+            identity_targets += 1
+            identity_operators[type(operator).__name__] += 1
+
+    return {
+        "identity_targets": identity_targets,
+        "identity_operators": dict(
+            sorted(identity_operators.items())
+        ),
+        "eligible": identity_targets > 0,
+    }
 
 def analyze_multiplication_targets(code: str) -> dict:
     """Analyze Stage 1.2 multiplication/division mutation targets."""

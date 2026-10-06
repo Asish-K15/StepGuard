@@ -1,4 +1,4 @@
-
+﻿
 
 from partner_a.evidence.mutation_eligibility import (
     STAGE_1_SUPPORTED_COMPARISONS,
@@ -103,6 +103,27 @@ def test_build_eligibility_uses_only_baseline_passing_candidates():
     assert result["candidate_eligibility"]["eligibility_rate"] == 0.5
 
     assert len(result["candidates"]) == 2
+
+def test_stage_1_3_identity_targets():
+    from partner_a.evidence.mutation_eligibility import (
+        analyze_identity_targets,
+    )
+
+    source = """
+def test(value):
+    if value is None:
+        return value is not False
+    return value == 1
+"""
+
+    result = analyze_identity_targets(source)
+
+    assert result["identity_targets"] == 2
+    assert result["identity_operators"] == {
+        "Is": 1,
+        "IsNot": 1,
+    }
+    assert result["eligible"] is True
 
 def test_stage_1_2_multiplication_targets():
     from partner_a.evidence.mutation_eligibility import (
