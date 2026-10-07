@@ -1,0 +1,67 @@
+{
+  "manifest_version": "1.0.0",
+  "data_contract_version": "1.0.0",
+  "generator_module": "partner_b.dataset.generator.PRMDatasetGenerator",
+  "random_seed": 42,
+  "source_artifact_hashes": {
+    "data/evaluation/solutions/candidates.jsonl": "a9a0592315079db909899bcae12677732a565afb5c56df554aa2eaf694eb202d",
+    "data/evaluation/solutions/baseline_results.jsonl": "d3e96a9bd17612733c4e6c98caa62ca1cb33cb1b6984473e830a7e4ec2445618",
+    "data/evaluation/mutations/mutation_execution_results.jsonl": "c3661813a5ee5009a160094ad31b489868ea9072e334bfe8d1814f88a4fd1686",
+    "data/solutions/candidates.jsonl": "96ceecb77630e48076c67c7361c6891d4e934ad757e37b1f9428b6f117a0c62c",
+    "data/solutions/baseline_results.jsonl": "8fa60269ce982201c8d36951b840354ff8af9df06b01705d8d685457cc2072b0",
+    "data/mutations/mutation_execution_results.jsonl": "554aa8621f9edb33e82c0970d1b37d5ba16dc25220e50e0e0acda953a87d0c23"
+  },
+  "problem_split_assignment": {
+    "eval_007": "train",
+    "eval_006": "train",
+    "eval_020": "train",
+    "eval_016": "train",
+    "eval_012": "train",
+    "eval_002": "train",
+    "eval_011": "train",
+    "eval_017": "train",
+    "mbpp_003": "train",
+    "eval_003": "train",
+    "mbpp_002": "train",
+    "eval_010": "train",
+    "eval_018": "train",
+    "eval_015": "train",
+    "eval_013": "train",
+    "eval_019": "train",
+    "eval_014": "train",
+    "eval_008": "validation",
+    "eval_005": "validation",
+    "mbpp_004": "validation",
+    "mbpp_005": "validation",
+    "eval_009": "test",
+    "eval_001": "test",
+    "eval_004": "test",
+    "mbpp_001": "test"
+  },
+  "split_problem_counts": {
+    "train": 17,
+    "validation": 4,
+    "test": 4
+  },
+  "dataset_record_counts": {
+    "train_total": 120,
+    "train_positive_proxy": 55,
+    "train_negative_proxy": 65,
+    "val_total": 40,
+    "val_positive_proxy": 16,
+    "val_negative_proxy": 24,
+    "test_total": 72,
+    "test_positive_proxy": 26,
+    "test_negative_proxy": 46,
+    "total_binary_records": 232,
+    "survived_excluded_count": 13,
+    "runtime_error_quarantined_count": 27
+  },
+  "output_artifact_hashes": {
+    "data/prm\\prm_train.jsonl": "8ae687807b830b52ed67302b82615aaf8530baa86ff8ae3f2b7aace6ead95f75",
+    "data/prm\\prm_val.jsonl": "f3416008fd1aebec4798059e3f069b03043dc717cbf4920c30aa01d7f80e3f4b",
+    "data/prm\\prm_test.jsonl": "208f8d04109a582ce67ff97f287b25693220673e4278df1e511c8ff7427e0897",
+    "data/prm\\prm_survived_excluded.jsonl": "2d3cc77e128885234a17a7504c95392982031d68626c08516bfcaa7bc17ef5ea",
+    "data/prm\\prm_runtime_error_quarantine.jsonl": "54fa812ad9c0b0794b14d40f18fb7dea164d6fe8c6ef9d9ca2ddc80f6446c408"
+  }
+}
